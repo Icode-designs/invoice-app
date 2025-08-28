@@ -30,6 +30,10 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
 
     --max-w: ${pxToRem(730)};
     --centered: 0 auto;
+
+    --padding-g: ${pxToRem(24)};
+    --border-radius-g: ${pxToRem(8)};
+  
   }
 
   *, *::after, *::before {

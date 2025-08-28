@@ -15,14 +15,14 @@ interface Item {
 export type InvoiceType = {
   id: string;
   createdAt: string;
-  paymentDue: string;
+  paymentdue: string;
   description: string;
-  paymentTerms: number;
-  clientName: string;
-  clientEmail: string;
+  paymentterms: number;
+  clientname: string;
+  clientemail: string;
   status: "draft" | "pending" | "paid";
-  senderAddress: Address;
-  clientAddress: Address;
+  senderaddress: Address;
+  clientaddress: Address;
   items: Item[];
   total: number;
 };

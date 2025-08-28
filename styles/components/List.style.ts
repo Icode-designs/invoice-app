@@ -22,7 +22,8 @@ export const ListTitleBox = styled.div`
   }
 `;
 
-export const ListControls = styled.div`
+export const ListControls = styled.div<{ $activeFilter?: boolean }>`
+  position: relative;
   display: flex;
   gap: ${pxToRem(18)};
   align-items: center;
@@ -30,6 +31,12 @@ export const ListControls = styled.div`
     display: flex;
     gap: ${pxToRem(16)};
     align-items: center;
+
+    .icon {
+      transition: transform 0.3s ease;
+      transform: translateY(${pxToRem(2)})
+        ${({ $activeFilter }) => $activeFilter && "rotate(-90deg)"};
+    }
   }
 `;
 
@@ -45,6 +52,7 @@ export const StyledInvoiceList = styled.ul`
 `;
 
 export const StyledListCard = styled.li`
+  position: relative;
   padding: ${pxToRem(24)};
   height: fit-content;
   background-color: ${({ theme }) =>
@@ -75,6 +83,11 @@ export const StyledListCard = styled.li`
     }
   }
 
+  .icon .angle {
+    grid-area: angle;
+    right: 0;
+  }
+
   .status {
     justify-self: right;
     align-self: self-end;
@@ -87,7 +100,7 @@ export const StyledListCard = styled.li`
     border-radius: ${pxToRem(6)};
     text-transform: capitalize;
     gap: ${pxToRem(6)};
-    padding: 0;
+    padding: ${pxToRem(5)};
 
     &.pending {
       background-color: rgba(var(--pending-col-rgb), 0.3);
@@ -104,13 +117,13 @@ export const StyledListCard = styled.li`
   }
 
   @media (${QUERIES.TABLET}) {
-    grid-template-areas: "id due clientName amt";
+    padding: ${pxToRem(16)};
+    grid-template-areas: "id due clientName amt status angle";
     align-items: center;
     height: ${pxToRem(72)};
 
     .status {
       justify-self: unset;
-      transform: translateY(${pxToRem(-32)});
     }
 
     h3 {
@@ -130,6 +143,22 @@ export const StyledListCard = styled.li`
       align-self: center;
     }
   }
+`;
+
+export const FilterCard = styled.div<{ $activeFilter?: boolean }>`
+  position: absolute;
+  top: ${pxToRem(70)};
+  left: ${pxToRem(-20)};
+  display: ${({ $activeFilter }) => ($activeFilter ? "grid" : "none")};
+  grid-template-columns: 1fr;
+  grid-row-gap: ${pxToRem(16)};
+  border-radius: var(--border-radius-g);
+  padding: var(--padding-g);
+  width: ${pxToRem(192)};
+  height: fit-content;
+  box-shadow: 0 ${pxToRem(6)}${pxToRem(10)} rgba(0, 0, 0, 0.3);
+  z-index: 90;
+  background-color: var(--col-1300);
 `;
 
 export const PendingBox = styled.div``;
