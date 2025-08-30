@@ -1,11 +1,11 @@
-interface Address {
+export interface Address {
   street: string;
   city: string;
   postCode: string;
   country: string;
 }
 
-interface Item {
+export interface Item {
   name: string;
   quantity: number;
   price: number;
@@ -14,7 +14,7 @@ interface Item {
 
 export type InvoiceType = {
   id: string;
-  createdAt: string;
+  createdate: string;
   paymentdue: string;
   description: string;
   paymentterms: number;

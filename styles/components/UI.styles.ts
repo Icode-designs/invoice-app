@@ -2,6 +2,7 @@
 import styled, { css } from "styled-components";
 import { pxToRem } from "@/utils/helpers/pxTorem";
 import { lightTheme } from "../themes";
+import QUERIES from "../mediaQueries";
 
 export const ButtonStyles = styled.button<{ $variant?: string }>`
   display: flex;
@@ -13,12 +14,15 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
   text-transform: capitalize;
   width: fit-content;
   height: fit-content;
-  font-size: ${pxToRem(16)};
+  font-size: ${pxToRem(12)};
+  letter-spacing: ${pxToRem(-0.25)};
+  line-height: ${pxToRem(15)};
   font-weight: var(--bold-font);
 
   p {
     font-size: inherit;
     color: var(--col-1300);
+    opacity: 100%;
   }
 
   &:hover {
@@ -104,14 +108,13 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
 `;
 
 export const MainWrapper = styled.main`
+  position: static;
   max-width: var(--max-w);
   margin: var(--centered);
   padding: ${pxToRem(104)} ${pxToRem(24)};
 `;
 
 export const LoaderBox = styled.div<{ $variant?: string }>`
-  /* HTML: <div class="loader"></div> */
-
   width: ${({ $variant }) =>
     $variant === "small" ? pxToRem(32) : pxToRem(50)};
   aspect-ratio: 1;
@@ -134,7 +137,7 @@ export const LoaderBox = styled.div<{ $variant?: string }>`
   }
 `;
 
-export const StyledCheckBox = styled.div`
+export const StyledCheckBox = styled.button`
   display: flex;
   align-items: center;
   gap: ${pxToRem(13)};
@@ -152,5 +155,69 @@ export const StyledCheckBox = styled.div`
   label {
     order: 2;
     text-transform: capitalize;
+  }
+`;
+
+export const StyledTextInput = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  label {
+    text-transform: capitalize;
+  }
+
+  input {
+    background-color: ${({ theme }) =>
+      theme === lightTheme ? "var(--col-1300)" : "var(--col-400)"} !important;
+    padding: ${pxToRem(10)};
+    border-radius: var(--border-radius-g);
+    border: ${pxToRem(1)} solid grey;
+    margin-top: ${pxToRem(10)};
+    width: 100%;
+    font-weight: var(--bold-font);
+    font-size: ${pxToRem(16)};
+    outline: none;
+
+    &:-webkit-autofill {
+      background-color: ${({ theme }) =>
+        theme === lightTheme ? "var(--col-1300)" : "var(--col-400)"} !important;
+      -webkit-text-fill-color: var(--primary-font-color) !important;
+      transition: background-color 5000s ease-in-out 0s; /* prevent flash */
+    }
+
+    &:focus {
+      border-color: var(--col-100);
+    }
+  }
+`;
+
+export const FlexBox = styled.div<{ $variant?: string }>`
+  display: flex;
+  gap: ${pxToRem(10)};
+
+  ${({ $variant }) =>
+    $variant === "secondary" &&
+    css`
+      display: grid;
+      gap: ${pxToRem(16)};
+
+      @media (${QUERIES.TABLET}) {
+        display: flex;
+      }
+    `}
+`;
+
+export const StyledFormControl = styled.div<{ $formVariant: string }>`
+  position: sticky;
+  width: 100%;
+  margin: 0 !important;
+  align-self: end;
+  left: 0;
+  bottom: 0;
+  padding: ${pxToRem(20)} ${pxToRem(16)};
+  background-color: ${({ theme }) =>
+    theme === lightTheme ? "var(--col-1300)" : "var(--col-300)"};
+  > div {
+    justify-content: space-between;
   }
 `;

@@ -17,6 +17,7 @@ export const ThemeContextProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [currrentTheme, setCurrentTheme] = useState<Theme>(lightTheme);
 
+  //toggle theme
   const toggleTheme = () => {
     setCurrentTheme((prevTheme) =>
       prevTheme === lightTheme ? darkTheme : lightTheme

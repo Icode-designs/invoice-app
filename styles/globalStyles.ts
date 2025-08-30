@@ -85,6 +85,10 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     }
   }
 
+  p{
+    opacity: 50%;
+  }
+
   p, span, li, button, input, textarea{
     font-size: var(--font-size-body);
     line-height: var(--line-height-body);

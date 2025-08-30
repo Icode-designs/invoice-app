@@ -10,6 +10,7 @@ const ListHeader = () => {
   const { invoices, isLoading, fetchErr } = useFetch();
   const isDesktop = useMediaQuery(1024);
 
+  //set wrapper based on screen size for responsiveness
   const Wrapper = isDesktop ? "h1" : "h2";
   return (
     <StyledListHeader>

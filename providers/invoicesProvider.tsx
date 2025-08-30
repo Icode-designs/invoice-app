@@ -18,12 +18,14 @@ export const FilterContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [filters, setFilters] = useState<string[]>([]);
-  const { invoices, isLoading, fetchErr } = useFetch();
+  const { invoices, isLoading, fetchErr } = useFetch(); //fetch invoices
 
+  //add filter
   function addFilter(f: string) {
     setFilters((prevFilters) => [...prevFilters, f]);
   }
 
+  //remove filter
   function removeFilter(f: string) {
     if (filters.includes(f)) {
       setFilters((prevFilters) => prevFilters.filter((item) => item !== f));
@@ -32,6 +34,7 @@ export const FilterContextProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  //set displayed invoices based on filter
   const displayInvoices =
     filters.length > 0
       ? invoices.filter((item) => filters.includes(item.status))

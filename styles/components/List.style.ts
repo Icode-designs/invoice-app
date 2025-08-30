@@ -159,6 +159,7 @@ export const FilterCard = styled.div<{ $activeFilter?: boolean }>`
   box-shadow: 0 ${pxToRem(6)}${pxToRem(10)} rgba(0, 0, 0, 0.3);
   z-index: 90;
   background-color: var(--col-1300);
+  color: var(--col-800);
 `;
 
 export const PendingBox = styled.div``;
