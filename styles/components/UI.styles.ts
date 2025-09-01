@@ -223,5 +223,5 @@ export const StyledFormControl = styled.div<{ $formVariant: string }>`
 `;
 
 export const StyledEmptyInvoice = styled.div`
-wi
-`
+  width: 100%;
+`;

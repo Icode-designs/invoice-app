@@ -14,10 +14,7 @@ const InvoiceList = () => {
     return null;
   }
 
-  let { displayInvoices, isLoading } = filterCtx;
-
-  displayInvoices = [];
-  isLoading = isLoading;
+  const { displayInvoices, isLoading } = filterCtx;
 
   if (displayInvoices.length === 0) {
     return <EmptyInvoiceList />;
