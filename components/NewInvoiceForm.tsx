@@ -4,7 +4,7 @@ import {
   StyledForm,
   StyledFormContainer,
 } from "@/styles/components/NewInvoiceForm.styles";
-import React, { useContext, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import TextInput from "./ui/TextInput";
 import { FlexBox } from "@/styles/components/UI.styles";
 import { FormContext } from "@/providers/FormProvider";
@@ -13,13 +13,18 @@ import { useMediaQuery } from "@/hooks/useMedia";
 import VariableButton from "./ui/Button";
 import { MdDelete } from "react-icons/md";
 import FormControl from "./ui/FormControl";
-import { saveInvoice } from "@/utils/actions/saveInvoice";
 
 const NewInvoiceForm = () => {
   const formCtx = useContext(FormContext);
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
-  const formRef = useRef<HTMLFormElement>(null);
+
+  const [currentDate, setCurrentDate] = useState("");
+
+  // Set the current date on the client side to avoid hydration mismatch
+  useEffect(() => {
+    setCurrentDate(new Date().toISOString().split("T")[0]);
+  }, []);
 
   if (!formCtx) {
     // Safety check if component is ever used outside provider
@@ -63,18 +68,9 @@ const NewInvoiceForm = () => {
     grandparent?.remove();
   }
 
-  function handleSubmit() {}
-
-  function handleDiscard() {
-    if (formRef.current) {
-      formRef.current.reset();
-    }
-    toggleForm();
-  }
-
   return (
     <StyledFormContainer $isOpen={isOpen}>
-      <StyledForm onSubmit={handleSubmit} ref={formRef} action={saveInvoice}>
+      <StyledForm>
         {!isLargeScreen && (
           <button onClick={toggleForm}>
             <FaAngleLeft className="icon" />
@@ -110,7 +106,7 @@ const NewInvoiceForm = () => {
           <h3>bill to</h3>
           <InputContainer>
             <TextInput label="client's name" name="clientname" type="text" />
-            <TextInput label="client's email" name="clientemail" type="text" />
+            <TextInput label="client's email" name="clientemail" type="email" />
             <TextInput
               label="street address"
               name="recieverAddress"
@@ -133,8 +129,8 @@ const NewInvoiceForm = () => {
               type="date"
               label="invoice date"
               name="createdate"
-              disable
-              value={new Date().toISOString().split("T")[0]}
+              readOnly
+              value={currentDate}
             />
             <TextInput type="date" label="due date" name="paymentdue" />
             <TextInput type="text" label="payment terms" name="paymentterms" />
@@ -175,7 +171,7 @@ const NewInvoiceForm = () => {
           </VariableButton>
         </fieldset>
 
-        <FormControl onDiscard={handleDiscard} />
+        <FormControl />
       </StyledForm>
     </StyledFormContainer>
   );

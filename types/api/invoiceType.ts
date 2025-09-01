@@ -15,7 +15,7 @@ export interface Item {
 export type InvoiceType = {
   id: string;
   createdate: string;
-  paymentdue: string;
+  paymentdue: string | null;
   description: string;
   paymentterms: number;
   clientname: string;

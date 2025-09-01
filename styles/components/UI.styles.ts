@@ -174,7 +174,7 @@ export const StyledTextInput = styled.div`
     border: ${pxToRem(1)} solid grey;
     margin-top: ${pxToRem(10)};
     width: 100%;
-    font-weight: var(--bold-font);
+    font-weight: var(--regular-font);
     font-size: ${pxToRem(16)};
     outline: none;
 
@@ -221,3 +221,7 @@ export const StyledFormControl = styled.div<{ $formVariant: string }>`
     justify-content: space-between;
   }
 `;
+
+export const StyledEmptyInvoice = styled.div`
+wi
+`

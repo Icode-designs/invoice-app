@@ -4,6 +4,7 @@ import React, { useContext } from "react";
 import ListCard from "./ui/ListCard";
 import { LoaderBox } from "@/styles/components/UI.styles";
 import { FilterContext } from "@/providers/invoicesProvider";
+import EmptyInvoiceList from "./ui/EmptyInvoiceList";
 
 const InvoiceList = () => {
   const filterCtx = useContext(FilterContext);
@@ -13,7 +14,14 @@ const InvoiceList = () => {
     return null;
   }
 
-  const { displayInvoices, isLoading } = filterCtx;
+  let { displayInvoices, isLoading } = filterCtx;
+
+  displayInvoices = [];
+  isLoading = isLoading;
+
+  if (displayInvoices.length === 0) {
+    return <EmptyInvoiceList />;
+  }
 
   return (
     <StyledInvoiceList>
