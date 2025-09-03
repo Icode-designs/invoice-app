@@ -73,8 +73,10 @@ const NewInvoiceForm = () => {
       <StyledForm>
         {!isLargeScreen && (
           <button onClick={toggleForm}>
-            <FaAngleLeft className="icon" />
-            Go Back
+            <FlexBox>
+              <FaAngleLeft className="icon" />
+              <span> Go Back</span>
+            </FlexBox>
           </button>
         )}
         <Wrapper>New Form</Wrapper>

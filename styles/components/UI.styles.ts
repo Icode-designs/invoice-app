@@ -25,10 +25,6 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
     opacity: 100%;
   }
 
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.button100Hover};
-  }
-
   ${({ $variant }) =>
     $variant === "btn-100" &&
     css`
@@ -51,7 +47,7 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
     $variant === "btn-100" || $variant === "btn-200"
       ? css`
           background-color: ${({ theme }) => theme.colors.button100};
-          color: "var(--col-1300)";
+          color: var(--col-1300);
 
           &:hover {
             background-color: ${({ theme }) => theme.colors.button100Hover};
@@ -63,12 +59,15 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
     $variant === "btn-300" &&
     css`
       background-color: ${({ theme }) => theme.colors.button300};
-      color: ${({ theme }) =>
-        theme === lightTheme ? "var(--col-1300)" : "var(--col-700)"};
-      border-radius: ${pxToRem(24)};
+
+      p {
+        color: ${({ theme }) =>
+          theme === lightTheme ? "var(--col-700)" : "var(--col-1300)"};
+      }
+
       &:hover {
         background-color: ${({ theme }) => theme.colors.button300Hover};
-        color: var(--col-700);
+        color: var(--col-100);
       }
     `}
 
@@ -108,10 +107,12 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
 `;
 
 export const MainWrapper = styled.main`
-  position: static;
+  position: relative;
   max-width: var(--max-w);
   margin: var(--centered);
   padding: ${pxToRem(104)} ${pxToRem(24)};
+  padding-bottom: ${pxToRem(150)};
+  min-height: 100vh;
 `;
 
 export const LoaderBox = styled.div<{ $variant?: string }>`
@@ -191,9 +192,17 @@ export const StyledTextInput = styled.div`
   }
 `;
 
-export const FlexBox = styled.div<{ $variant?: string }>`
+export const FlexBox = styled.div<{
+  $variant?: string;
+  $justify?: string;
+  $noGap?: boolean;
+  $align?: string;
+}>`
   display: flex;
-  gap: ${pxToRem(10)};
+  gap: ${({ $noGap }) => ($noGap ? 0 : pxToRem(10))};
+  align-items: ${({ $align }) => ($align ? $align : "center")};
+  width: 100%;
+  justify-content: ${({ $justify }) => $justify};
 
   ${({ $variant }) =>
     $variant === "secondary" &&
@@ -207,7 +216,7 @@ export const FlexBox = styled.div<{ $variant?: string }>`
     `}
 `;
 
-export const StyledFormControl = styled.div<{ $formVariant: string }>`
+export const StyledFormControl = styled.div`
   position: sticky;
   width: 100%;
   margin: 0 !important;
@@ -223,5 +232,96 @@ export const StyledFormControl = styled.div<{ $formVariant: string }>`
 `;
 
 export const StyledEmptyInvoice = styled.div`
+  padding: ${pxToRem(102)} ${pxToRem(16)};
+  padding-bottom: 0;
   width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+
+    image {
+      width: 80%;
+      height: 80%;
+    }
+
+    article {
+      margin-top: ${pxToRem(64)};
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: ${pxToRem(24)};
+      text-align: center;
+    }
+  }
+`;
+
+export const StyledCard = styled.div<{ $display?: string }>`
+  background-color: ${({ theme }) =>
+    theme === lightTheme ? "var(--col-1300)" : "var(--col-300)"};
+  padding: ${pxToRem(24)};
+  min-height: ${pxToRem(91)};
+  display: ${({ $display }) => $display || "flex"};
+  align-items: center;
+  border-radius: var(--border-radius-g);
+  margin-top: ${pxToRem(24)};
+  gap: ${pxToRem(32)};
+`;
+
+export const StyledAddressBox = styled.div<{ $textAlign?: string }>`
+  width: ${pxToRem(94)};
+  text-align: ${({ $textAlign }) => $textAlign || "left"};
+`;
+
+export const GridBox = styled.div<{ $gap?: number }>`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(${pxToRem(94)}, 1fr));
+  gap: ${({ $gap }) => ($gap ? pxToRem($gap) : pxToRem(10))};
+  align-items: start;
+`;
+
+export const StyledTable = styled.table`
+  padding: ${pxToRem(32)};
+  text-align: left;
+  width: 100%;
+  background-color: ${({ theme }) =>
+    theme === lightTheme ? "var(--col-1300)" : "var(--col-400)"};
+  border-top-right-radius: var(--border-radius-g);
+  border-top-left-radius: var(--border-radius-g);
+  tr {
+    padding: ${pxToRem(16)};
+    th:nth-of-type(1),
+    td:nth-of-type(1) {
+      column-span: 2;
+    }
+  }
+`;
+
+export const TotalBox = styled.div`
+  color: var(--col-1300);
+  padding: ${pxToRem(24)} ${pxToRem(32)};
+  background-color: var(--col-800);
+  border-bottom-left-radius: var(--border-radius-g);
+  border-bottom-right-radius: var(--border-radius-g);
+`;
+
+export const StyledInvoiceBtn = styled.div`
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: ${({ theme }) =>
+    theme === lightTheme ? "var(--col-1300)" : "var(--col-300)"};
+  padding: ${pxToRem(22)};
+  display: flex;
+  @media (${QUERIES.TABLET}) {
+    position: static;
+    top: unset;
+    border: unset;
+    padding: 0;
+    background-color: transparent;
+  }
 `;

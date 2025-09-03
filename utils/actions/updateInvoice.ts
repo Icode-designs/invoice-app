@@ -4,17 +4,7 @@ import { supabase } from "@/backend/supaBase";
 import { Address, InvoiceType } from "@/types/api/invoiceType";
 import { redirect } from "next/navigation";
 
-function generateId() {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-// Helper function to safely handle form data
+//  Safely extract a string value from form data
 function getFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
   if (value === null || value === undefined) return null;
@@ -22,12 +12,11 @@ function getFormValue(formData: FormData, key: string): string | null {
   return stringValue === "" ? null : stringValue;
 }
 
-// Helper function to handle date values specifically - FIXED
+//  Extract and validate a date string (YYYY-MM-DD format)
 function getDateValue(formData: FormData, key: string): string | null {
   const value = getFormValue(formData, key);
   if (!value) return null;
 
-  // Validate date format (YYYY-MM-DD)
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(value)) {
     throw new Error(`Invalid date format for ${key}: ${value}`);
@@ -36,7 +25,7 @@ function getDateValue(formData: FormData, key: string): string | null {
   return value;
 }
 
-// Helper function to handle number values
+//  Extract and validate a number value, with optional default
 function getNumberValue(
   formData: FormData,
   key: string,
@@ -53,50 +42,50 @@ function getNumberValue(
   return num;
 }
 
-// Main save function with proper return type
-async function saveInvoice(
+//  Main function to update an invoice in Supabase
+async function updateInvoice(
   formData: FormData,
-  status: "draft" | "pending"
+  invoiceID: string
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
   try {
-    // Debug: Log all form data
+    //  Debug: Log all form data for inspection
     console.log("=== FORM DATA DEBUG ===");
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: "${value}" (type: ${typeof value})`);
     }
     console.log("=======================");
 
-    const id = generateId();
+    const id = invoiceID;
 
-    // Handle dates properly
+    //  Extract and validate date fields
     let createdate = getDateValue(formData, "createdate");
     const paymentdue = getDateValue(formData, "paymentdue");
 
-    // If createdate is not provided, set it to today
+    //  If no createdate is provided, default to today's date
     if (!createdate) {
       createdate = new Date().toISOString().split("T")[0];
       console.log("No createdate provided, setting to today:", createdate);
     }
 
-    // Handle other fields safely
+    //  Extract other basic invoice fields
     const description = getFormValue(formData, "description") || "";
     const paymentterms = getNumberValue(formData, "paymentterms", 0);
     const clientname = getFormValue(formData, "clientname");
     const clientemail = getFormValue(formData, "clientemail");
 
-    // Validate required client information
+    // Validate required fields
     if (!clientname || !clientemail) {
       throw new Error("Client name and email are required");
     }
 
-    // Handle multiple items - check both naming conventions
+    //  Extract total values (can be multiple items)
     let totalArr = formData.getAll("total");
     if (totalArr.length === 0) {
-      // Fallback to single field name if array notation not found
       const singleTotal = formData.get("total");
       totalArr = singleTotal ? [singleTotal] : [];
     }
 
+    //  Calculate total invoice amount
     const total = totalArr
       .map((val) => {
         const num = Number(val);
@@ -104,7 +93,7 @@ async function saveInvoice(
       })
       .reduce((acc, curr) => acc + curr, 0);
 
-    // Build addresses safely
+    //  Build client and sender address objects
     const clientaddress: Address = {
       street: getFormValue(formData, "recieverAddress") || "",
       city: getFormValue(formData, "recieverCity") || "",
@@ -119,13 +108,13 @@ async function saveInvoice(
       country: getFormValue(formData, "senderCountry") || "",
     };
 
-    // Handle items array - check both naming conventions
+    //  Extract item details (name, quantity, price, total)
     let names = formData.getAll("name[]");
     let quantities = formData.getAll("quantity[]");
     let prices = formData.getAll("price[]");
     let totals = formData.getAll("total[]");
 
-    // Fallback to single field names if array notation not found
+    //  Fallback to single item fields if array notation is missing
     if (names.length === 0) {
       const singleName = formData.get("name");
       const singleQty = formData.get("quantity");
@@ -140,6 +129,7 @@ async function saveInvoice(
       }
     }
 
+    //  Build item objects and filter out empty ones
     const items = names
       .map((_, i) => ({
         name: String(names[i] || ""),
@@ -147,22 +137,21 @@ async function saveInvoice(
         price: Number(prices[i] || 0),
         total: Number(totals[i] || 0),
       }))
-      .filter((item) => item.name.trim() !== ""); // Remove empty items
+      .filter((item) => item.name.trim() !== "");
 
-    // Validate at least one item exists
+    //  Ensure at least one item is present
     if (items.length === 0) {
       throw new Error("At least one item is required");
     }
 
+    //  Construct the invoice object to be saved
     const invoiceObj: Partial<InvoiceType> = {
-      id,
       createdate,
       paymentdue,
       description,
       paymentterms,
       clientname,
       clientemail,
-      status, // Use the passed status parameter
       total,
       senderaddress,
       clientaddress,
@@ -171,11 +160,13 @@ async function saveInvoice(
 
     console.log("Attempting to save invoice:", invoiceObj);
 
-    const { data, error } = await supabase
+    // 💾Update the invoice in Supabase
+    const { error, data } = await supabase
       .from("invoices")
-      .insert(invoiceObj)
-      .select();
+      .update(invoiceObj) // ✅ This was missing before
+      .eq("id", id); // 🔍 Match the invoice by ID
 
+    //  Handle database errors
     if (error) {
       console.error("Supabase error:", error);
       throw new Error(`Database error: ${error.message}`);
@@ -191,30 +182,35 @@ async function saveInvoice(
   }
 }
 
-// Server actions for form buttons
-export async function handleSaveAsDraft(formData: FormData) {
-  const result = await saveInvoice(formData, "draft");
-
-  if (result.success) {
-    console.log("Draft saved successfully");
-    // Redirect or revalidate instead of calling client functions
-    redirect("/"); // or wherever you want to go after saving
-  } else {
-    // Server actions can't use alert() - you'll need to handle errors differently
-    // You could redirect to an error page or use cookies to pass error messages
-    throw new Error(result.error || "Failed to save draft");
-  }
+//  Wrapper function to trigger invoice update
+function saveUpdate(id: string) {
+  return async (formData: FormData) => {
+    await updateInvoice(formData, id);
+  };
 }
 
-export async function handleSaveAndSend(formData: FormData) {
-  const result = await saveInvoice(formData, "pending");
+async function handlePaidStatus(id: string) {
+  const { error } = await supabase
+    .from("invoices")
+    .update({ status: "paid" })
+    .eq("id", id)
+    .select();
 
-  if (result.success) {
-    console.log("Invoice saved and sent");
-    // Redirect or revalidate instead of calling client functions
-    redirect("/"); // or wherever you want to go after saving
-  } else {
-    // Server actions can't use alert() - you'll need to handle errors differently
-    throw new Error(result.error || "Failed to save invoice");
+  if (error) {
+    console.log(error.message);
   }
 }
+async function handleDelete(id: string) {
+  // 🔹 Attempt to delete the invoice with the given ID
+  const { error } = await supabase.from("invoices").delete().eq("id", id); // Match invoice by ID
+
+  // ❌ If there's an error, log it and stop execution
+  if (error) {
+    console.error("Failed to delete invoice:", error.message);
+    return; // Prevent redirect if deletion fails
+  }
+
+  return true;
+}
+
+export { saveUpdate, handleDelete, handlePaidStatus };

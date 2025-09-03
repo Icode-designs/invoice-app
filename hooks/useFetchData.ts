@@ -1,4 +1,4 @@
-import { supabase } from "@/api/supaBase";
+import { supabase } from "@/backend/supaBase";
 import { useEffect, useState } from "react";
 import { InvoiceType } from "@/types/api/invoiceType";
 

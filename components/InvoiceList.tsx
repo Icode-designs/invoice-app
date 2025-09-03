@@ -1,21 +1,17 @@
 "use client";
 import { StyledInvoiceList } from "@/styles/components/List.style";
-import React, { useContext } from "react";
 import ListCard from "./ui/ListCard";
 import { LoaderBox } from "@/styles/components/UI.styles";
-import { FilterContext } from "@/providers/invoicesProvider";
 import EmptyInvoiceList from "./ui/EmptyInvoiceList";
+import { InvoiceType } from "@/types/api/invoiceType";
 
-const InvoiceList = () => {
-  const filterCtx = useContext(FilterContext);
-
-  if (!filterCtx) {
-    // Safety check if component is ever used outside provider
-    return null;
-  }
-
-  const { displayInvoices, isLoading } = filterCtx;
-
+const InvoiceList = ({
+  displayInvoices,
+  isLoading,
+}: {
+  displayInvoices: InvoiceType[];
+  isLoading: boolean;
+}) => {
   if (displayInvoices.length === 0) {
     return <EmptyInvoiceList />;
   }

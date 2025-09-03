@@ -64,9 +64,6 @@ export const StyledForm = styled.form`
   }
   > button {
     margin-bottom: ${pxToRem(24)};
-    &.icon {
-      transform: translateY(${pxToRem(5)});
-    }
   }
   > h2,
   > h3 {

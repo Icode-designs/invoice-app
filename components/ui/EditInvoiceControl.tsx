@@ -1,13 +1,15 @@
+"use client";
 import { FlexBox, StyledFormControl } from "@/styles/components/UI.styles";
 import React, { useContext } from "react";
 import VariableButton from "./Button";
-import {
-  handleSaveAndSend,
-  handleSaveAsDraft,
-} from "@/utils/actions/saveInvoice";
 import { FormContext } from "@/providers/FormProvider";
+import { saveUpdate } from "@/utils/actions/updateInvoice";
 
-const FormControl = () => {
+interface ControlType {
+  invoiceId: string;
+}
+
+const EditFormControl = ({ invoiceId }: ControlType) => {
   const formCtx = useContext(FormContext);
 
   if (!formCtx) {
@@ -15,31 +17,19 @@ const FormControl = () => {
   }
 
   const { toggleForm } = formCtx;
-
-  function handleDiscard() {
-    toggleForm();
-  }
   return (
     <StyledFormControl>
       <FlexBox>
-        <VariableButton variant="btn-500" type="reset" onHandle={handleDiscard}>
-          Discard
-        </VariableButton>
-
-        <FlexBox>
-          <VariableButton
-            variant="btn-400"
-            type="submit"
-            formAction={handleSaveAsDraft}
-          >
-            Save as Draft
+        <FlexBox $justify="right">
+          <VariableButton variant="btn-400" onClick={toggleForm}>
+            Cancel
           </VariableButton>
           <VariableButton
             variant="btn-200"
             type="submit"
-            formAction={handleSaveAndSend}
+            formAction={saveUpdate(invoiceId)}
           >
-            Save & Send
+            Save Changes
           </VariableButton>
         </FlexBox>
       </FlexBox>
@@ -47,4 +37,4 @@ const FormControl = () => {
   );
 };
 
-export default FormControl;
+export default EditFormControl;

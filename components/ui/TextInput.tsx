@@ -7,7 +7,7 @@ interface Props {
   name: string;
   type: "text" | "number" | "email" | "date" | null;
   readOnly?: boolean;
-  value?: string;
+  value?: string | number | null;
 }
 
 const TextInput = ({ name, label, type, readOnly, value }: Props) => {

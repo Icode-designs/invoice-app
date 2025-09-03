@@ -162,4 +162,27 @@ export const FilterCard = styled.div<{ $activeFilter?: boolean }>`
   color: var(--col-800);
 `;
 
-export const PendingBox = styled.div``;
+export const StatusBox = styled.div`
+  width: ${pxToRem(104)};
+  height: ${pxToRem(40)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${pxToRem(6)};
+  text-transform: capitalize;
+  gap: ${pxToRem(6)};
+  padding: ${pxToRem(5)};
+
+  &.pending {
+    background-color: rgba(var(--pending-col-rgb), 0.3);
+    color: var(--pending-color);
+  }
+  &.paid {
+    background-color: rgba(var(--paid-col-rgb), 0.3);
+    color: var(--paid-color);
+  }
+  &.draft {
+    background-color: rgba(var(--draft-col-rgb), 0.3);
+    color: var(--draft-col);
+  }
+`;
