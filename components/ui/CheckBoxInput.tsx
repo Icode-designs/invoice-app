@@ -11,7 +11,6 @@ interface CheckInput {
 const CheckBoxInput = ({ name, label }: CheckInput) => {
   const filterCtx = useContext(FilterContext);
   const inputRef = useRef<HTMLInputElement>(null);
-  let checked;
 
   if (!filterCtx) {
     // Safety check if component is ever used outside provider
@@ -20,21 +19,20 @@ const CheckBoxInput = ({ name, label }: CheckInput) => {
 
   //distructure filter context
   const { addFilter, removeFilter, filters } = filterCtx;
+  const checked = filters.includes(name);
 
   //input change event handler
-  function handleClick() {
-    checked = inputRef.current?.checked;
-
-    //check if filter exists before adding or removing filter
-    if (checked && !filters.includes(name)) {
+  function handleCheck() {
+    const isChecked = inputRef.current?.checked;
+    if (isChecked) {
       addFilter(name);
-    } else if (checked && filters.includes(name)) {
+    } else {
       removeFilter(name);
     }
   }
 
   return (
-    <StyledCheckBox onClick={handleClick}>
+    <StyledCheckBox>
       <label htmlFor={name}>
         <h3>{label}</h3>
       </label>
@@ -42,7 +40,7 @@ const CheckBoxInput = ({ name, label }: CheckInput) => {
         type="checkbox"
         id={name}
         name={name}
-        onChange={handleClick}
+        onChange={handleCheck}
         ref={inputRef}
         checked={checked}
       />

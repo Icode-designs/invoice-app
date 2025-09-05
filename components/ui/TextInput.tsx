@@ -25,6 +25,7 @@ const TextInput = ({ name, label, type, readOnly, value, step }: Props) => {
         readOnly={readOnly}
         defaultValue={value ? value : ""}
         step={step}
+        min={type === "number" ? 1 : undefined}
       />
     </StyledTextInput>
   );
