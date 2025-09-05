@@ -63,7 +63,8 @@ export const StyledListCard = styled.li`
 
   h3 {
     text-align: left;
-    &:nth-of-type(1) {
+    &:nth-of-type(1),
+    .loading {
       grid-area: id;
     }
     &:nth-of-type(2) {
@@ -71,8 +72,11 @@ export const StyledListCard = styled.li`
     }
   }
 
+  .loading {
+    text-align: left !important;
+  }
+
   p {
-    opacity: 50%;
     &:nth-of-type(1) {
       grid-area: clientName;
       text-align: right;

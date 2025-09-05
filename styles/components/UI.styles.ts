@@ -112,7 +112,7 @@ export const MainWrapper = styled.main`
   margin: var(--centered);
   padding: ${pxToRem(104)} ${pxToRem(24)};
   padding-bottom: ${pxToRem(150)};
-  min-height: 100vh;
+  min-height: 100%;
 `;
 
 export const LoaderBox = styled.div<{ $variant?: string }>`
@@ -122,12 +122,12 @@ export const LoaderBox = styled.div<{ $variant?: string }>`
   aspect-ratio: 1;
   border-radius: 50%;
   padding: 3px;
-  background: radial-gradient(farthest-side, var(--pending-color) 95%, #0000)
-      50% 0/12px 12px no-repeat,
+  background: radial-gradient(farthest-side, var(--col-100) 95%, #0000) 50% 0/12px
+      12px no-repeat,
     radial-gradient(
         farthest-side,
         #0000 calc(100% - 5px),
-        var(--pending-color) calc(100% - 4px)
+        var(--col-100) calc(100% - 4px)
       )
       content-box;
   animation: l6 2s infinite;

@@ -47,7 +47,11 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
   };
 
   if (isLoading) {
-    return <LoaderBox />;
+    return (
+      <MainWrapper>
+        <LoaderBox />
+      </MainWrapper>
+    );
   }
 
   if (fetchErr) {

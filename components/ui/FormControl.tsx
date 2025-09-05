@@ -1,5 +1,5 @@
 import { FlexBox, StyledFormControl } from "@/styles/components/UI.styles";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import VariableButton from "./Button";
 import {
   handleSaveAndSend,
@@ -9,6 +9,7 @@ import { FormContext } from "@/providers/FormProvider";
 
 const FormControl = () => {
   const formCtx = useContext(FormContext);
+  const [saving, setSaving] = useState(false);
 
   if (!formCtx) {
     return;
@@ -21,10 +22,12 @@ const FormControl = () => {
   }
 
   function onSave(formData: FormData) {
+    setSaving(true);
     handleSaveAndSend(formData);
     window.location.reload();
   }
   function onSaveDraft(formData: FormData) {
+    setSaving(true);
     handleSaveAsDraft(formData);
     window.location.reload();
   }
@@ -40,11 +43,17 @@ const FormControl = () => {
             variant="btn-400"
             type="submit"
             formAction={onSaveDraft}
+            disabled={saving}
           >
-            Save as Draft
+            {saving ? "Saving..." : "Save as Draft"}
           </VariableButton>
-          <VariableButton variant="btn-200" type="submit" formAction={onSave}>
-            Save & Send
+          <VariableButton
+            variant="btn-200"
+            type="submit"
+            formAction={onSave}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save & Send"}
           </VariableButton>
         </FlexBox>
       </FlexBox>

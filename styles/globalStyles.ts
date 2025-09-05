@@ -50,6 +50,8 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     font-weight: var(--regular-font);
     position: relative;
     width: 100%;
+    height: 100vh;
+    overflow-y: scroll;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
