@@ -3,7 +3,6 @@ import { useMediaQuery } from "@/hooks/useMedia";
 import { ListTitleBox, StyledListHeader } from "@/styles/components/List.style";
 import React from "react";
 import ListControl from "./ui/ListControl";
-import { LoaderBox } from "@/styles/components/UI.styles";
 import { InvoiceType } from "@/types/api/invoiceType";
 
 const ListHeader = ({
