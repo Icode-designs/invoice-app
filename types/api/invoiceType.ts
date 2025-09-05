@@ -7,9 +7,9 @@ export interface Address {
 
 export interface Item {
   name: string;
-  quantity: number;
-  price: number;
-  total: number;
+  quantity: number | null;
+  price: number | null;
+  total: number | null;
 }
 
 export type InvoiceType = {

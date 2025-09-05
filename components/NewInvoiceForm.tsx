@@ -13,12 +13,15 @@ import { useMediaQuery } from "@/hooks/useMedia";
 import VariableButton from "./ui/Button";
 import { MdDelete } from "react-icons/md";
 import FormControl from "./ui/FormControl";
+import { Item } from "@/types/api/invoiceType";
 
 const NewInvoiceForm = () => {
   const formCtx = useContext(FormContext);
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
-
+  const [items, setItems] = useState<Item[]>([
+    { name: "", quantity: 1, total: null, price: null },
+  ]);
   const [currentDate, setCurrentDate] = useState("");
 
   // Set the current date on the client side to avoid hydration mismatch
@@ -33,39 +36,19 @@ const NewInvoiceForm = () => {
 
   const { isOpen, toggleForm } = formCtx;
 
-  function handleClick() {
-    const itemInput = document.getElementById("itemInput");
-    if (itemInput) {
-      const newItemInput = itemInput.cloneNode(true) as HTMLElement;
-
-      // Give it a new unique id
-      newItemInput.id = Date.now().toString();
-      newItemInput.removeAttribute("data-template");
-
-      // Fix: re-attach delete button handler
-      const deleteBtn = newItemInput.querySelector(".deleteBtn");
-      if (deleteBtn) {
-        deleteBtn.addEventListener("click", () => {
-          newItemInput.remove();
-        });
-      }
-
-      // Insert after the original
-      itemInput.parentNode?.insertBefore(newItemInput, itemInput.nextSibling);
-    }
-  }
-
-  function handleDelete(event: React.MouseEvent<HTMLButtonElement>) {
-    const delBtn = event.currentTarget;
-    const parent = delBtn.parentElement;
-    const grandparent = parent?.parentElement;
-
-    // Don't remove the template row
-    if (grandparent?.id === "itemInput") {
+  function removeItem(i: number) {
+    if (i === 0) {
       return;
     }
 
-    grandparent?.remove();
+    setItems(items.filter((_, index) => index !== i));
+  }
+
+  function addItem() {
+    setItems((prevItems) => [
+      ...prevItems,
+      { name: "", quantity: 1, total: null, price: null },
+    ]);
   }
 
   return (
@@ -124,7 +107,11 @@ const NewInvoiceForm = () => {
                   type="number"
                 />
               </FlexBox>
-              <TextInput label="recieverCountry" name="country" type="text" />
+              <TextInput
+                label="recieverCountry"
+                name="recieverCountry"
+                type="text"
+              />
             </FlexBox>
 
             <TextInput
@@ -147,28 +134,42 @@ const NewInvoiceForm = () => {
         <fieldset className="itemList">
           <h2>Item List</h2>
           <InputContainer>
-            <FlexBox $variant="secondary" id="itemInput">
-              <TextInput name="name" label="item name" type="text" />
-              <FlexBox>
-                <TextInput name="quantity" label="QTY" type="number" />
-                <TextInput name="price" label="price" type="number" />
-                <TextInput name="total" label="total" type="number" />
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="deleteBtn"
-                >
-                  <MdDelete size={32} color="var(--col-600)" />
-                </button>
+            {items.map((item, i) => (
+              <FlexBox key={i} $variant="secondary" id="itemInput">
+                <TextInput name="name" label="item name" type="text" />
+                <FlexBox>
+                  <TextInput
+                    name="quantity"
+                    label="QTY"
+                    type="number"
+                    value={item.quantity}
+                    step={1}
+                  />
+                  <TextInput
+                    name="price"
+                    label="price"
+                    type="number"
+                    step={0.01}
+                  />
+                  <TextInput
+                    name="total"
+                    label="total"
+                    type="number"
+                    step={0.01}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    className="deleteBtn"
+                  >
+                    <MdDelete size={32} color="var(--col-600)" />
+                  </button>
+                </FlexBox>
               </FlexBox>
-            </FlexBox>
+            ))}
           </InputContainer>
 
-          <VariableButton
-            variant="btn-600"
-            type="button"
-            onHandle={handleClick}
-          >
+          <VariableButton variant="btn-600" type="button" onHandle={addItem}>
             Add Item
           </VariableButton>
         </fieldset>

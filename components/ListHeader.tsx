@@ -24,13 +24,14 @@ const ListHeader = ({
       <ListTitleBox>
         <Wrapper>Invoices</Wrapper>
         {isLoading ? (
-          <LoaderBox $variant="small" />
+          <p>Loading...</p>
         ) : (
           <p>
             {fetchErr && "could not read invoice list"}
-            {!isLoading && displayInvoices.length > 0
-              ? `There are ${displayInvoices.length} total invoice`
-              : "No invoices"}
+            {!isLoading &&
+              !fetchErr &&
+              displayInvoices.length > 0 &&
+              `There are ${displayInvoices.length} total invoice`}
           </p>
         )}
       </ListTitleBox>

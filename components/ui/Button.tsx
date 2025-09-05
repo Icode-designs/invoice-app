@@ -11,6 +11,7 @@ type ButtonProps = {
   type?: "button" | "reset" | "submit";
   formAction?: (formData: FormData) => void | Promise<void>;
   onClick?: () => void; // Add onClick as alternative
+  disabled?: boolean | undefined;
 };
 
 //variable button that adapts based on the value of variant
@@ -22,7 +23,7 @@ const VariableButton = ({
   onHandle,
   formAction,
   onClick,
-  ...otherProps
+  disabled,
 }: ButtonProps) => {
   // Use onHandle, onClick, or neither
   const handleClick = onHandle || onClick;
@@ -33,7 +34,7 @@ const VariableButton = ({
       type={type}
       onClick={handleClick}
       formAction={formAction} // This will be ignored if type !== "submit"
-      {...otherProps}
+      disabled={disabled}
     >
       {variant === "btn-100" ? (
         <div>

@@ -8,9 +8,10 @@ interface Props {
   type: "text" | "number" | "email" | "date" | null;
   readOnly?: boolean;
   value?: string | number | null;
+  step?: string | number | undefined;
 }
 
-const TextInput = ({ name, label, type, readOnly, value }: Props) => {
+const TextInput = ({ name, label, type, readOnly, value, step }: Props) => {
   return (
     <StyledTextInput>
       <label htmlFor={name}>
@@ -23,6 +24,7 @@ const TextInput = ({ name, label, type, readOnly, value }: Props) => {
         required
         readOnly={readOnly}
         defaultValue={value ? value : ""}
+        step={step}
       />
     </StyledTextInput>
   );

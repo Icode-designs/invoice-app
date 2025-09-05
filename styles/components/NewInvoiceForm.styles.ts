@@ -41,6 +41,7 @@ export const StyledFormContainer = styled.div<{ $isOpen: boolean }>`
 
 export const StyledForm = styled.form`
   display: grid;
+  width: 100%;
   grid-template-columns: 1fr;
   justify-items: start;
   position: relative;
@@ -54,10 +55,10 @@ export const StyledForm = styled.form`
   overscroll-behavior: contain;
   scrollbar-width: 0;
   padding-top: ${pxToRem(56)};
-  padding: 0;
+
   > * {
-    margin: ${pxToRem(16)};
     margin-bottom: 0;
+    padding: 0 ${pxToRem(16)};
   }
   &::-webkit-scrollbar {
     display: none;
@@ -70,6 +71,7 @@ export const StyledForm = styled.form`
     margin-bottom: ${pxToRem(32)};
   }
   fieldset {
+    width: 100%;
     margin-bottom: ${pxToRem(32)};
     border: none;
     display: grid;
@@ -101,7 +103,7 @@ export const StyledForm = styled.form`
     border-top-right-radius: ${pxToRem(20)};
     border-bottom-right-radius: ${pxToRem(20)};
     > * {
-      margin: 0 ${pxToRem(56)};
+      padding: 0 ${pxToRem(56)};
     }
   }
 `;

@@ -55,6 +55,7 @@ async function updateInvoice(
     }
     console.log("=======================");
 
+    // Get id
     const id = invoiceID;
 
     //  Extract and validate date fields
@@ -79,7 +80,7 @@ async function updateInvoice(
     }
 
     //  Extract total values (can be multiple items)
-    let totalArr = formData.getAll("total");
+    let totalArr = formData.getAll("total[]");
     if (totalArr.length === 0) {
       const singleTotal = formData.get("total");
       totalArr = singleTotal ? [singleTotal] : [];
@@ -109,14 +110,14 @@ async function updateInvoice(
     };
 
     //  Extract item details (name, quantity, price, total)
-    let names = formData.getAll("name[]");
+    let names = formData.getAll("itemname[]");
     let quantities = formData.getAll("quantity[]");
     let prices = formData.getAll("price[]");
     let totals = formData.getAll("total[]");
 
     //  Fallback to single item fields if array notation is missing
     if (names.length === 0) {
-      const singleName = formData.get("name");
+      const singleName = formData.get("itemname");
       const singleQty = formData.get("quantity");
       const singlePrice = formData.get("price");
       const singleTotal = formData.get("total");
@@ -146,6 +147,7 @@ async function updateInvoice(
 
     //  Construct the invoice object to be saved
     const invoiceObj: Partial<InvoiceType> = {
+      id,
       createdate,
       paymentdue,
       description,
@@ -163,8 +165,8 @@ async function updateInvoice(
     // 💾Update the invoice in Supabase
     const { error, data } = await supabase
       .from("invoices")
-      .update(invoiceObj) // ✅ This was missing before
-      .eq("id", id); // 🔍 Match the invoice by ID
+      .update(invoiceObj)
+      .eq("id", id);
 
     //  Handle database errors
     if (error) {
@@ -180,21 +182,15 @@ async function updateInvoice(
       error instanceof Error ? error.message : "Unknown error occurred";
     return { success: false, error: errorMessage };
   }
-}
 
-//  Wrapper function to trigger invoice update
-function saveUpdate(id: string) {
-  return async (formData: FormData) => {
-    await updateInvoice(formData, id);
-  };
+  window.location.reload();
 }
 
 async function handlePaidStatus(id: string) {
   const { error } = await supabase
     .from("invoices")
     .update({ status: "paid" })
-    .eq("id", id)
-    .select();
+    .eq("id", id);
 
   if (error) {
     console.log(error.message);
@@ -213,4 +209,4 @@ async function handleDelete(id: string) {
   return true;
 }
 
-export { saveUpdate, handleDelete, handlePaidStatus };
+export { updateInvoice, handleDelete, handlePaidStatus };

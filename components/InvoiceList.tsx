@@ -12,9 +12,13 @@ const InvoiceList = ({
   displayInvoices: InvoiceType[];
   isLoading: boolean;
 }) => {
-  if (displayInvoices.length === 0) {
+  if (!isLoading && displayInvoices.length === 0) {
     return <EmptyInvoiceList />;
   }
+
+  displayInvoices = [...displayInvoices].sort((a, b) => {
+    return new Date(b.createdate).getTime() - new Date(a.createdate).getTime();
+  });
 
   return (
     <StyledInvoiceList>

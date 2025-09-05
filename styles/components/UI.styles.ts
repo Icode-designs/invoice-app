@@ -116,6 +116,7 @@ export const MainWrapper = styled.main`
 `;
 
 export const LoaderBox = styled.div<{ $variant?: string }>`
+  margin: auto;
   width: ${({ $variant }) =>
     $variant === "small" ? pxToRem(32) : pxToRem(50)};
   aspect-ratio: 1;
@@ -197,11 +198,12 @@ export const FlexBox = styled.div<{
   $justify?: string;
   $noGap?: boolean;
   $align?: string;
+  $width?: string;
 }>`
   display: flex;
   gap: ${({ $noGap }) => ($noGap ? 0 : pxToRem(10))};
   align-items: ${({ $align }) => ($align ? $align : "center")};
-  width: 100%;
+  width: ${({ $width }) => $width || "100%"};
   justify-content: ${({ $justify }) => $justify};
 
   ${({ $variant }) =>
@@ -217,18 +219,15 @@ export const FlexBox = styled.div<{
 `;
 
 export const StyledFormControl = styled.div`
+  display: flex;
   position: sticky;
   width: 100%;
   margin: 0 !important;
-  align-self: end;
   left: 0;
   bottom: 0;
-  padding: ${pxToRem(20)} ${pxToRem(16)};
+  padding: ${pxToRem(20)} ${pxToRem(16)} !important;
   background-color: ${({ theme }) =>
     theme === lightTheme ? "var(--col-1300)" : "var(--col-300)"};
-  > div {
-    justify-content: space-between;
-  }
 `;
 
 export const StyledEmptyInvoice = styled.div`
@@ -323,5 +322,25 @@ export const StyledInvoiceBtn = styled.div`
     border: unset;
     padding: 0;
     background-color: transparent;
+  }
+`;
+
+export const StyledDialogBox = styled.dialog`
+  border-radius: var(--border-radius-g);
+  display: grid;
+  grid-gap: ${pxToRem(16)};
+  grid-template-columns: 1fr;
+  width: fit-content;
+  align-self: center;
+  justify-self: center;
+  padding: ${pxToRem(32)};
+  border: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+
+  &[open] {
+    opacity: 1;
+    visibility: visible;
   }
 `;

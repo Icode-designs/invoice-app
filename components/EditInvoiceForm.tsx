@@ -9,10 +9,10 @@ import { FaAngleLeft } from "react-icons/fa";
 import TextInput from "./ui/TextInput";
 import { MdDelete } from "react-icons/md";
 import VariableButton from "./ui/Button";
-import FormControl from "./ui/FormControl";
 import { useMediaQuery } from "@/hooks/useMedia";
 import { InvoiceType } from "@/types/api/invoiceType";
 import EditFormControl from "./ui/EditInvoiceControl";
+import { useState } from "react";
 
 interface EditInvoiceType {
   isOpen: boolean;
@@ -25,42 +25,22 @@ const EditInvoiceForm = ({
   toggleForm,
   selectedInvoice,
 }: EditInvoiceType) => {
+  const [items, setItems] = useState(selectedInvoice.items);
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
 
-  function handleClick() {
-    const itemInput = document.getElementById("itemInput");
-    if (itemInput) {
-      const newItemInput = itemInput.cloneNode(true) as HTMLElement;
-
-      // Give it a new unique id
-      newItemInput.id = Date.now().toString();
-      newItemInput.removeAttribute("data-template");
-
-      // Fix: re-attach delete button handler
-      const deleteBtn = newItemInput.querySelector(".deleteBtn");
-      if (deleteBtn) {
-        deleteBtn.addEventListener("click", () => {
-          newItemInput.remove();
-        });
-      }
-
-      // Insert after the original
-      itemInput.parentNode?.insertBefore(newItemInput, itemInput.nextSibling);
-    }
+  function addItem() {
+    setItems((prevItems) => [
+      ...prevItems,
+      { name: "", quantity: null, price: null, total: null },
+    ]);
   }
 
-  function handleDelete(event: React.MouseEvent<HTMLButtonElement>) {
-    const delBtn = event.currentTarget;
-    const parent = delBtn.parentElement;
-    const grandparent = parent?.parentElement;
-
-    // Don't remove the template row
-    if (grandparent?.id === "itemInput") {
+  function removeItem(indexToRemove: number) {
+    if (indexToRemove === 0) {
       return;
     }
-
-    grandparent?.remove();
+    setItems(items.filter((_, index) => index !== indexToRemove));
   }
   return (
     <StyledFormContainer $isOpen={isOpen}>
@@ -149,7 +129,7 @@ const EditInvoiceForm = ({
               </FlexBox>
               <TextInput
                 label="recieverCountry"
-                name="country"
+                name="recieverCountry"
                 type="text"
                 value={selectedInvoice.clientaddress.country}
               />
@@ -186,36 +166,39 @@ const EditInvoiceForm = ({
         <fieldset className="itemList">
           <h2>Item List</h2>
           <InputContainer>
-            {selectedInvoice.items.map((item, index) => (
+            {items.map((item, index) => (
               <FlexBox key={index} $variant="secondary" id="itemInput">
                 <TextInput
-                  name="name"
+                  name="itemname[]"
                   label="item name"
                   type="text"
                   value={item.name}
                 />
                 <FlexBox>
                   <TextInput
-                    name="quantity"
+                    name="quantity[]"
                     label="QTY"
                     type="number"
+                    step={1}
                     value={item.quantity}
                   />
                   <TextInput
-                    name="price"
+                    name="price[]"
                     label="price"
                     type="number"
+                    step={0.01}
                     value={item.price}
                   />
                   <TextInput
-                    name="total"
+                    name="total[]"
                     label="total"
                     type="number"
-                    value={item.quantity * item.price}
+                    step={0.01}
+                    value={item.total}
                   />
                   <button
                     type="button"
-                    onClick={handleDelete}
+                    onClick={() => removeItem(index)}
                     className="deleteBtn"
                   >
                     <MdDelete size={32} color="var(--col-600)" />
@@ -225,11 +208,7 @@ const EditInvoiceForm = ({
             ))}
           </InputContainer>
 
-          <VariableButton
-            variant="btn-600"
-            type="button"
-            onHandle={handleClick}
-          >
+          <VariableButton variant="btn-600" type="button" onHandle={addItem}>
             Add Item
           </VariableButton>
         </fieldset>

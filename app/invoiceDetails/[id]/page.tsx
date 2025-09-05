@@ -1,5 +1,6 @@
 "use client";
 import EditInvoiceForm from "@/components/EditInvoiceForm";
+import DialogBox, { DialogBoxHandle } from "@/components/ui/DialogBox";
 import InvoiceBtn from "@/components/ui/InvoiceBtn";
 import { useFetch } from "@/hooks/useFetchData";
 import { useMediaQuery } from "@/hooks/useMedia";
@@ -17,12 +18,13 @@ import {
 } from "@/styles/components/UI.styles";
 import formatToEuro from "@/utils/helpers/formatToEuro";
 import { useRouter } from "next/navigation";
-import React, { use, useContext } from "react";
+import React, { use, useContext, useRef } from "react";
 import { FaAngleLeft } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import { LuHash } from "react-icons/lu";
 
 const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
+  const dialogRef = useRef<DialogBoxHandle>(null);
   const formCtx = useContext(FormContext);
   const { invoices, fetchErr, isLoading } = useFetch();
   const { id } = use(params);
@@ -39,6 +41,10 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
   function handleBack() {
     router.back();
   }
+
+  const openDialog = () => {
+    dialogRef.current?.open();
+  };
 
   if (isLoading) {
     return <LoaderBox />;
@@ -70,6 +76,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
         toggleForm={toggleForm}
         selectedInvoice={selectedInvoice}
       />
+      <DialogBox id={selectedInvoice.id} ref={dialogRef} />
       <MainWrapper>
         <button onClick={handleBack}>
           <FlexBox>
@@ -89,7 +96,12 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
               </StatusBox>
             </FlexBox>
             {isLargeScreen && (
-              <InvoiceBtn toggleForm={toggleForm} id={selectedInvoice.id} />
+              <InvoiceBtn
+                toggleForm={toggleForm}
+                id={selectedInvoice.id}
+                openDialog={openDialog}
+                status={selectedInvoice.status}
+              />
             )}
           </FlexBox>
         </StyledCard>
@@ -201,7 +213,12 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
         </StyledCard>
         {!isLargeScreen && (
-          <InvoiceBtn toggleForm={toggleForm} id={selectedInvoice.id} />
+          <InvoiceBtn
+            toggleForm={toggleForm}
+            id={selectedInvoice.id}
+            openDialog={openDialog}
+            status={selectedInvoice.status}
+          />
         )}
       </MainWrapper>
     </>

@@ -1,29 +1,26 @@
 "use client";
 import { FlexBox, StyledInvoiceBtn } from "@/styles/components/UI.styles";
-import React, { useState } from "react";
+import React from "react";
 import VariableButton from "./Button";
-import { handleDelete, handlePaidStatus } from "@/utils/actions/updateInvoice";
-import { useRouter } from "next/navigation";
+import { handlePaidStatus } from "@/utils/actions/updateInvoice";
 
 interface InvoiceBtnTypes {
   toggleForm: () => void;
   id: string;
+  openDialog: () => void;
+  status: string;
 }
 
-const InvoiceBtn = ({ toggleForm, id }: InvoiceBtnTypes) => {
-  const router = useRouter();
-
-  const onDelete = async () => {
-    const result = await handleDelete(id);
-    if (result) {
-      router.push("/");
-    }
-  };
-
+const InvoiceBtn = ({
+  toggleForm,
+  id,
+  openDialog,
+  status,
+}: InvoiceBtnTypes) => {
   // Todo: update status in realtime
   const onPaid = async () => {
-    const result = await handlePaidStatus(id);
-    console.log(result);
+    await handlePaidStatus(id);
+    window.location.reload();
   };
   return (
     <StyledInvoiceBtn>
@@ -31,10 +28,14 @@ const InvoiceBtn = ({ toggleForm, id }: InvoiceBtnTypes) => {
         <VariableButton variant="btn-300" onClick={toggleForm}>
           edit
         </VariableButton>
-        <VariableButton variant="btn-500" onClick={onDelete}>
+        <VariableButton variant="btn-500" onClick={openDialog}>
           Delete
         </VariableButton>
-        <VariableButton variant="btn-200" onClick={onPaid}>
+        <VariableButton
+          variant="btn-200"
+          onClick={onPaid}
+          disabled={status === "paid"}
+        >
           Mark as Paid
         </VariableButton>
       </FlexBox>

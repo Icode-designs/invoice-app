@@ -19,26 +19,31 @@ const FormControl = () => {
   function handleDiscard() {
     toggleForm();
   }
+
+  function onSave(formData: FormData) {
+    handleSaveAndSend(formData);
+    window.location.reload();
+  }
+  function onSaveDraft(formData: FormData) {
+    handleSaveAsDraft(formData);
+    window.location.reload();
+  }
   return (
     <StyledFormControl>
-      <FlexBox>
+      <FlexBox $justify="space-between">
         <VariableButton variant="btn-500" type="reset" onHandle={handleDiscard}>
           Discard
         </VariableButton>
 
-        <FlexBox>
+        <FlexBox $width="fit-content">
           <VariableButton
             variant="btn-400"
             type="submit"
-            formAction={handleSaveAsDraft}
+            formAction={onSaveDraft}
           >
             Save as Draft
           </VariableButton>
-          <VariableButton
-            variant="btn-200"
-            type="submit"
-            formAction={handleSaveAndSend}
-          >
+          <VariableButton variant="btn-200" type="submit" formAction={onSave}>
             Save & Send
           </VariableButton>
         </FlexBox>
