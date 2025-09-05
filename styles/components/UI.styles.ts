@@ -19,6 +19,10 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
   line-height: ${pxToRem(15)};
   font-weight: var(--bold-font);
 
+  &:disabled {
+    opacity: 50%;
+  }
+
   p {
     font-size: inherit;
     color: var(--col-1300);

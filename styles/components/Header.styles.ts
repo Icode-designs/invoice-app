@@ -26,6 +26,7 @@ export const StyledHeader = styled.header`
 `;
 
 export const HeaderLogo = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,6 +34,21 @@ export const HeaderLogo = styled.div`
   background-color: var(--col-100);
   border-top-right-radius: ${pxToRem(20)};
   border-bottom-right-radius: ${pxToRem(20)};
+
+  &::after {
+    display: block;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    background-color: var(--col-1300);
+    opacity: 30%;
+    border: none;
+    border-top-left-radius: 50%;
+    bottom: 0;
+    left: 0;
+    border-bottom-right-radius: ${pxToRem(20)};
+  }
 `;
 
 export const HeaderActions = styled.div`
