@@ -7,7 +7,6 @@ import formatToEuro from "@/utils/helpers/formatToEuro";
 import { useMediaQuery } from "@/hooks/useMedia";
 import { FaAngleRight } from "react-icons/fa";
 import Link from "next/link";
-import { LoaderBox } from "@/styles/components/UI.styles";
 
 interface ListCardProps {
   invoice: InvoiceType;

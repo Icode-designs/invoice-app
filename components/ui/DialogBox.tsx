@@ -3,7 +3,7 @@ import { FlexBox, StyledDialogBox } from "@/styles/components/UI.styles";
 import React, { useRef, useImperativeHandle, forwardRef } from "react";
 import VariableButton from "./Button";
 import { handleDelete } from "@/utils/actions/updateInvoice";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 // Define the shape of the exposed methods
 export interface DialogBoxHandle {
@@ -28,9 +28,8 @@ const DialogBox = forwardRef<DialogBoxHandle, { id: string }>(({ id }, ref) => {
   const onDelete = async () => {
     const result = await handleDelete(id);
     if (result) {
-      router.push("/");
+      redirect("/");
     }
-    window.location.reload();
   };
 
   const handleCloseDialog = () => {
