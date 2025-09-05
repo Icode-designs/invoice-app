@@ -157,6 +157,7 @@ export const StyledCheckBox = styled.button`
   label {
     order: 2;
     text-transform: capitalize;
+    color: var(--col-800);
   }
 `;
 
