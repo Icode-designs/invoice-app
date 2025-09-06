@@ -34,6 +34,7 @@ export const HeaderLogo = styled.div`
   background-color: var(--col-100);
   border-top-right-radius: ${pxToRem(20)};
   border-bottom-right-radius: ${pxToRem(20)};
+  overflow: hidden;
 
   &::after {
     display: block;
@@ -44,10 +45,9 @@ export const HeaderLogo = styled.div`
     background-color: var(--col-1300);
     opacity: 30%;
     border: none;
-    border-top-left-radius: 50%;
+    border-top-left-radius: ${pxToRem(20)};
     bottom: 0;
     left: 0;
-    border-bottom-right-radius: ${pxToRem(20)};
   }
 `;
 
