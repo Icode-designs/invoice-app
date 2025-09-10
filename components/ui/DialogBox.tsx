@@ -1,9 +1,14 @@
 "use client";
 import { FlexBox, StyledDialogBox } from "@/styles/components/UI.styles";
-import React, { useRef, useImperativeHandle, forwardRef } from "react";
+import React, {
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+  useContext,
+  useState,
+} from "react";
 import VariableButton from "./Button";
-import { handleDelete } from "@/utils/actions/updateInvoice";
-import { redirect } from "next/navigation";
+import { FilterContext } from "@/providers/invoicesProvider";
 
 // Define the shape of the exposed methods
 export interface DialogBoxHandle {
@@ -12,6 +17,8 @@ export interface DialogBoxHandle {
 
 const DialogBox = forwardRef<DialogBoxHandle, { id: string }>(({ id }, ref) => {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const filterCtx = useContext(FilterContext);
+  const [deleting, setDeleting] = useState(false);
 
   // Expose the open method to parent
   useImperativeHandle(
@@ -24,15 +31,21 @@ const DialogBox = forwardRef<DialogBoxHandle, { id: string }>(({ id }, ref) => {
     []
   );
 
-  const onDelete = async () => {
-    const result = await handleDelete(id);
-    if (result) {
-      redirect("/");
-    }
-  };
+  if (!filterCtx) {
+    return null;
+  }
+
+  const { deleteInvoiceData } = filterCtx;
 
   const handleCloseDialog = () => {
     dialogRef.current?.close();
+  };
+
+  const onDelete = async () => {
+    setDeleting(true);
+    await deleteInvoiceData(id);
+    setDeleting(false);
+    handleCloseDialog();
   };
 
   return (
@@ -46,8 +59,12 @@ const DialogBox = forwardRef<DialogBoxHandle, { id: string }>(({ id }, ref) => {
         <VariableButton variant="btn-300" onClick={handleCloseDialog}>
           Cancel
         </VariableButton>
-        <VariableButton variant="btn-500" onClick={onDelete}>
-          Delete
+        <VariableButton
+          variant="btn-500"
+          onClick={onDelete}
+          disabled={deleting}
+        >
+          {deleting ? "Deleting..." : "Delete"}
         </VariableButton>
       </FlexBox>
     </StyledDialogBox>

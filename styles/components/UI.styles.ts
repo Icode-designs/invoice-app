@@ -171,6 +171,10 @@ export const StyledTextInput = styled.div`
   width: 100%;
   label {
     text-transform: capitalize;
+    span {
+      color: red;
+      opacity: 100%;
+    }
   }
 
   input {

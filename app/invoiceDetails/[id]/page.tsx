@@ -1,10 +1,11 @@
 "use client";
+import { supabase } from "@/backend/supaBase";
 import EditInvoiceForm from "@/components/EditInvoiceForm";
 import DialogBox, { DialogBoxHandle } from "@/components/ui/DialogBox";
 import InvoiceBtn from "@/components/ui/InvoiceBtn";
-import { useFetch } from "@/hooks/useFetchData";
 import { useMediaQuery } from "@/hooks/useMedia";
-import FormContextProvider, { FormContext } from "@/providers/FormProvider";
+import { FormContext } from "@/providers/FormProvider";
+import { FilterContext } from "@/providers/invoicesProvider";
 import { StatusBox } from "@/styles/components/List.style";
 import {
   FlexBox,
@@ -16,9 +17,10 @@ import {
   StyledTable,
   TotalBox,
 } from "@/styles/components/UI.styles";
+import { InvoiceType } from "@/types/api/invoiceType";
 import formatToEuro from "@/utils/helpers/formatToEuro";
 import { useRouter } from "next/navigation";
-import React, { use, useContext, useRef } from "react";
+import React, { use, useContext, useEffect, useRef, useState } from "react";
 import { FaAngleLeft } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import { LuHash } from "react-icons/lu";
@@ -26,17 +28,33 @@ import { LuHash } from "react-icons/lu";
 const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
   const dialogRef = useRef<DialogBoxHandle>(null);
   const formCtx = useContext(FormContext);
-  const { invoices, fetchErr, isLoading } = useFetch();
+  const filterCtx = useContext(FilterContext);
+  const [selectedInvoice, setSelectedInvoice] = useState<
+    InvoiceType | undefined
+  >();
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchErr, setFetchErr] = useState(false);
   const { id } = use(params);
   const router = useRouter();
   const isLargeScreen = useMediaQuery(768);
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (filterCtx) {
+      const invoice = filterCtx.getInvoice(id);
+      setSelectedInvoice(invoice);
+      setIsLoading(false);
+    } else {
+      setFetchErr(true);
+    }
+  }, [id, filterCtx]);
 
   if (!formCtx) {
     // Safety check if component is ever used outside provider
     return null;
   }
 
-  const { isOpen, toggleForm } = formCtx;
+  const { isOpen } = formCtx;
 
   function handleBack() {
     router.back();
@@ -54,15 +72,13 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
     );
   }
 
-  if (fetchErr) {
+  if (fetchErr && !isLoading) {
     return (
       <MainWrapper>
         <h3>Error getting invoice</h3>
       </MainWrapper>
     );
   }
-
-  const selectedInvoice = invoices.find((inv) => inv.id === id);
 
   if (!selectedInvoice) {
     return (
@@ -73,13 +89,13 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
     );
   }
 
+  const createDate = new Date(selectedInvoice.createdate)
+    .toISOString()
+    .split("T")[0];
+
   return (
     <>
-      <EditInvoiceForm
-        isOpen={isOpen}
-        toggleForm={toggleForm}
-        selectedInvoice={selectedInvoice}
-      />
+      <EditInvoiceForm isOpen={isOpen} selectedInvoice={selectedInvoice} />
       <DialogBox id={selectedInvoice.id} ref={dialogRef} />
       <MainWrapper>
         <button onClick={handleBack}>
@@ -101,7 +117,6 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
             </FlexBox>
             {isLargeScreen && (
               <InvoiceBtn
-                toggleForm={toggleForm}
                 id={selectedInvoice.id}
                 openDialog={openDialog}
                 status={selectedInvoice.status}
@@ -133,7 +148,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
             <GridBox $gap={32}>
               <GridBox>
                 <p>invoice Date</p>
-                <h3>{selectedInvoice.createdate}</h3>
+                <h3>{createDate}</h3>
               </GridBox>
               <GridBox>
                 <p>Payment Date</p>
@@ -218,7 +233,6 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
         </StyledCard>
         {!isLargeScreen && (
           <InvoiceBtn
-            toggleForm={toggleForm}
             id={selectedInvoice.id}
             openDialog={openDialog}
             status={selectedInvoice.status}

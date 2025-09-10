@@ -27,10 +27,9 @@ const ListHeader = ({
         ) : (
           <p>
             {fetchErr && "could not read invoice list"}
-            {!isLoading &&
-              !fetchErr &&
-              displayInvoices.length > 0 &&
-              `There are ${displayInvoices.length} total invoice`}
+            {!isLoading && !fetchErr && displayInvoices.length > 0
+              ? `There are ${displayInvoices.length} total invoice`
+              : "No invoice matches your filter"}
           </p>
         )}
       </ListTitleBox>

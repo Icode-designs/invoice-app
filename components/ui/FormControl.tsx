@@ -1,19 +1,20 @@
 import { FlexBox, StyledFormControl } from "@/styles/components/UI.styles";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import VariableButton from "./Button";
-import {
-  handleSaveAndSend,
-  handleSaveAsDraft,
-} from "@/utils/actions/saveInvoice";
 import { FormContext } from "@/providers/FormProvider";
+import { FilterContext } from "@/providers/invoicesProvider";
+import { useFormStatus } from "react-dom";
 
 const FormControl = () => {
   const formCtx = useContext(FormContext);
-  const [saving, setSaving] = useState(false);
+  const { pending } = useFormStatus();
+  const filterCtx = useContext(FilterContext);
 
-  if (!formCtx) {
+  if (!formCtx || !filterCtx) {
     return;
   }
+
+  const { saveNewPendingInvoice, saveNewDraftInvoice } = filterCtx;
 
   const { toggleForm } = formCtx;
 
@@ -21,16 +22,14 @@ const FormControl = () => {
     toggleForm();
   }
 
-  function onSave(formData: FormData) {
-    setSaving(true);
-    handleSaveAndSend(formData);
-    window.location.reload();
+  async function handleSavePending(formData: FormData) {
+    await saveNewPendingInvoice(formData);
   }
-  function onSaveDraft(formData: FormData) {
-    setSaving(true);
-    handleSaveAsDraft(formData);
-    window.location.reload();
+
+  async function handleSaveDraft(formData: FormData) {
+    await saveNewDraftInvoice(formData);
   }
+
   return (
     <StyledFormControl>
       <FlexBox $justify="space-between">
@@ -42,18 +41,18 @@ const FormControl = () => {
           <VariableButton
             variant="btn-400"
             type="submit"
-            formAction={onSaveDraft}
-            disabled={saving}
+            formAction={handleSaveDraft}
+            disabled={pending}
           >
-            {saving ? "Saving..." : "Save as Draft"}
+            {pending ? "Saving draft..." : "Save as Draft"}
           </VariableButton>
           <VariableButton
             variant="btn-200"
             type="submit"
-            formAction={onSave}
-            disabled={saving}
+            formAction={handleSavePending}
+            disabled={pending}
           >
-            {saving ? "Saving..." : "Save & Send"}
+            {pending ? "Saving..." : "Save & Send"}
           </VariableButton>
         </FlexBox>
       </FlexBox>

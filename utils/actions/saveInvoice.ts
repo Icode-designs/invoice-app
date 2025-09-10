@@ -54,10 +54,10 @@ function getNumberValue(
 }
 
 // Main save function with proper return type
-async function saveInvoice(
+export async function saveInvoice(
   formData: FormData,
   status: "draft" | "pending"
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
+): Promise<{ success: boolean; data?: InvoiceType; error?: string }> {
   try {
     // Debug: Log all form data
     console.log("=== FORM DATA DEBUG ===");
@@ -69,14 +69,7 @@ async function saveInvoice(
     const id = generateId();
 
     // Handle dates properly
-    let createdate = getDateValue(formData, "createdate");
     const paymentdue = getDateValue(formData, "paymentdue");
-
-    // If createdate is not provided, set it to today
-    if (!createdate) {
-      createdate = new Date().toISOString().split("T")[0];
-      console.log("No createdate provided, setting to today:", createdate);
-    }
 
     // Handle other fields safely
     const description = getFormValue(formData, "description") || "";
@@ -156,7 +149,6 @@ async function saveInvoice(
 
     const invoiceObj: Partial<InvoiceType> = {
       id,
-      createdate,
       paymentdue,
       description,
       paymentterms,
@@ -174,7 +166,8 @@ async function saveInvoice(
     const { data, error } = await supabase
       .from("invoices")
       .insert(invoiceObj)
-      .select();
+      .select()
+      .single();
 
     if (error) {
       console.error("Supabase error:", error);

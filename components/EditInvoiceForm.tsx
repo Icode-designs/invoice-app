@@ -12,22 +12,40 @@ import VariableButton from "./ui/Button";
 import { useMediaQuery } from "@/hooks/useMedia";
 import { InvoiceType } from "@/types/api/invoiceType";
 import EditFormControl from "./ui/EditInvoiceControl";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { FormContext } from "@/providers/FormProvider";
+import { FilterContext } from "@/providers/invoicesProvider";
 
 interface EditInvoiceType {
   isOpen: boolean;
-  toggleForm: () => void;
   selectedInvoice: InvoiceType;
 }
 
-const EditInvoiceForm = ({
-  isOpen,
-  toggleForm,
-  selectedInvoice,
-}: EditInvoiceType) => {
+const EditInvoiceForm = ({ isOpen, selectedInvoice }: EditInvoiceType) => {
   const [items, setItems] = useState(selectedInvoice.items);
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
+  const formCtx = useContext(FormContext);
+  const filterCtx = useContext(FilterContext);
+
+  // Sync selectedInvoice to latest local state from context
+  useEffect(() => {
+    if (filterCtx) {
+      const latestInvoice = filterCtx.getInvoice(selectedInvoice.id);
+      if (latestInvoice) {
+        setItems(latestInvoice.items);
+      }
+    }
+  }, [filterCtx, selectedInvoice.id]);
+
+  if (!formCtx) {
+    return;
+  }
+
+  const { toggleForm } = formCtx;
+  const createDate = new Date(selectedInvoice.createdate)
+    .toISOString()
+    .split("T")[0];
 
   function addItem() {
     setItems((prevItems) => [
@@ -54,6 +72,7 @@ const EditInvoiceForm = ({
           </button>
         )}
         <Wrapper>Edit Form</Wrapper>
+        <p>(fieds with * on their label are required)</p>
 
         <fieldset>
           <h3>bill form</h3>
@@ -98,17 +117,20 @@ const EditInvoiceForm = ({
               name="clientname"
               type="text"
               value={selectedInvoice.clientname}
+              required
             />
             <TextInput
               label="client's email"
               name="clientemail"
               type="email"
+              required
               value={selectedInvoice.clientemail}
             />
             <TextInput
               label="street address"
               name="recieverAddress"
               type="text"
+              required
               value={selectedInvoice.clientaddress.street}
             />
 
@@ -118,12 +140,14 @@ const EditInvoiceForm = ({
                   label="City"
                   name="recieverCity"
                   type="text"
+                  required
                   value={selectedInvoice.clientaddress.city}
                 />
                 <TextInput
                   label="Post Code"
                   name="recieverPostcode"
                   type="number"
+                  required
                   value={selectedInvoice.clientaddress.postCode}
                 />
               </FlexBox>
@@ -131,6 +155,7 @@ const EditInvoiceForm = ({
                 label="recieverCountry"
                 name="recieverCountry"
                 type="text"
+                required
                 value={selectedInvoice.clientaddress.country}
               />
             </FlexBox>
@@ -139,25 +164,28 @@ const EditInvoiceForm = ({
               type="date"
               label="invoice date"
               name="createdate"
-              value={selectedInvoice.createdate}
+              value={createDate}
               readOnly
             />
             <TextInput
               type="date"
               label="due date"
               name="paymentdue"
+              required
               value={selectedInvoice.paymentdue}
             />
             <TextInput
               type="text"
               label="payment terms"
               name="paymentterms"
+              required
               value={selectedInvoice.paymentterms}
             />
             <TextInput
               type="text"
               label="project/decription"
               name="description"
+              required
               value={selectedInvoice.description}
             />
           </InputContainer>
@@ -172,6 +200,7 @@ const EditInvoiceForm = ({
                   name="itemname[]"
                   label="item name"
                   type="text"
+                  required
                   value={item.name}
                 />
                 <FlexBox>
@@ -180,6 +209,7 @@ const EditInvoiceForm = ({
                     label="QTY"
                     type="number"
                     step={1}
+                    required
                     value={item.quantity}
                   />
                   <TextInput
@@ -187,6 +217,7 @@ const EditInvoiceForm = ({
                     label="price"
                     type="number"
                     step={0.01}
+                    required
                     value={item.price}
                   />
                   <TextInput
@@ -194,6 +225,7 @@ const EditInvoiceForm = ({
                     label="total"
                     type="number"
                     step={0.01}
+                    required
                     value={item.total}
                   />
                   <button

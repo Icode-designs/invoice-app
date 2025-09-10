@@ -43,10 +43,10 @@ function getNumberValue(
 }
 
 //  Main function to update an invoice in Supabase
-async function updateInvoice(
+export async function updateInvoice(
   formData: FormData,
   invoiceID: string
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
+): Promise<{ success: boolean; data?: InvoiceType; error?: string }> {
   try {
     //  Debug: Log all form data for inspection
     console.log("=== FORM DATA DEBUG ===");
@@ -160,13 +160,13 @@ async function updateInvoice(
       items,
     };
 
-    console.log("Attempting to save invoice:", invoiceObj);
-
     // 💾Update the invoice in Supabase
     const { error, data } = await supabase
       .from("invoices")
       .update(invoiceObj)
-      .eq("id", id);
+      .eq("id", id)
+      .select()
+      .single();
 
     //  Handle database errors
     if (error) {
@@ -182,25 +182,29 @@ async function updateInvoice(
       error instanceof Error ? error.message : "Unknown error occurred";
     return { success: false, error: errorMessage };
   }
-
-  window.location.reload();
 }
 
-async function handlePaidStatus(id: string) {
+export async function handlePaidStatus(id: string) {
   const { error } = await supabase
     .from("invoices")
     .update({ status: "paid" })
     .eq("id", id);
-
   if (error) {
     console.log(error.message);
   }
 }
-async function handleDelete(id: string) {
-  // 🔹 Attempt to delete the invoice with the given ID
+export async function handleDraftStatus(id: string) {
+  const { error } = await supabase
+    .from("invoices")
+    .update({ status: "draft" })
+    .eq("id", id);
+  if (error) {
+    console.log(error.message);
+  }
+}
+export async function handleDelete(id: string) {
   const { error } = await supabase.from("invoices").delete().eq("id", id); // Match invoice by ID
 
-  // ❌ If there's an error, log it and stop execution
   if (error) {
     console.error("Failed to delete invoice:", error.message);
     return; // Prevent redirect if deletion fails
@@ -208,5 +212,3 @@ async function handleDelete(id: string) {
 
   return true;
 }
-
-export { updateInvoice, handleDelete, handlePaidStatus };

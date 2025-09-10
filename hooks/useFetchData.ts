@@ -1,8 +1,8 @@
 import { supabase } from "@/backend/supaBase";
-import { useEffect, useState } from "react";
 import { InvoiceType } from "@/types/api/invoiceType";
+import { useEffect, useState } from "react";
 
-function useFetchInvoices() {
+const useFetch = (location: string) => {
   const [invoices, setInvoices] = useState<InvoiceType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState<string | null>(null);
@@ -26,9 +26,9 @@ function useFetchInvoices() {
     }
 
     fetchInvoices();
-  }, []);
+  }, [location]);
 
   return { invoices, isLoading, fetchErr };
-}
+};
 
-export { useFetchInvoices as useFetch };
+export default useFetch;

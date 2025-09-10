@@ -2,16 +2,13 @@
 import InvoiceList from "@/components/InvoiceList";
 import ListHeader from "@/components/ListHeader";
 import NewInvoiceForm from "@/components/NewInvoiceForm";
-import FormContextProvider from "@/providers/FormProvider";
-import {
-  FilterContext,
-  FilterContextProvider,
-} from "@/providers/invoicesProvider";
+import { FilterContext } from "@/providers/invoicesProvider";
 import { MainWrapper } from "@/styles/components/UI.styles";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 export default function Home() {
   const filterCtx = useContext(FilterContext);
+  useEffect(() => {}, []);
 
   if (!filterCtx) {
     // Safety check if component is ever used outside provider
@@ -19,6 +16,7 @@ export default function Home() {
   }
 
   const { displayInvoices, isLoading, fetchErr } = filterCtx;
+
   return (
     <>
       <NewInvoiceForm />

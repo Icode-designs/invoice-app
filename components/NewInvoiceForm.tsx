@@ -23,6 +23,13 @@ const NewInvoiceForm = () => {
     { name: "", quantity: 1, total: null, price: null },
   ]);
   const [currentDate, setCurrentDate] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
+
+  useEffect(() => {
+    const now = new Date();
+    const timeString = now.toTimeString().slice(0, 5); // "HH:mm"
+    setCurrentTime(timeString);
+  }, []);
 
   // Set the current date on the client side to avoid hydration mismatch
   useEffect(() => {
@@ -63,6 +70,7 @@ const NewInvoiceForm = () => {
           </button>
         )}
         <Wrapper>New Form</Wrapper>
+        <p>(fieds with * on their label are required)</p>
 
         <fieldset>
           <h3>bill form</h3>
@@ -90,43 +98,65 @@ const NewInvoiceForm = () => {
         <fieldset>
           <h3>bill to</h3>
           <InputContainer>
-            <TextInput label="client's name" name="clientname" type="text" />
-            <TextInput label="client's email" name="clientemail" type="email" />
+            <TextInput
+              label="client's name"
+              name="clientname"
+              type="text"
+              required
+            />
+            <TextInput
+              label="client's email"
+              name="clientemail"
+              type="email"
+              required
+            />
             <TextInput
               label="street address"
               name="recieverAddress"
               type="text"
+              required
             />
 
             <FlexBox $variant="secondary">
               <FlexBox>
-                <TextInput label="City" name="recieverCity" type="text" />
+                <TextInput
+                  label="City"
+                  name="recieverCity"
+                  type="text"
+                  required
+                />
                 <TextInput
                   label="Post Code"
                   name="recieverPostcode"
                   type="number"
+                  required
                 />
               </FlexBox>
               <TextInput
                 label="recieverCountry"
                 name="recieverCountry"
                 type="text"
+                required
               />
             </FlexBox>
 
             <TextInput
               type="date"
-              label="invoice date"
-              name="createdate"
-              readOnly
-              value={currentDate}
+              label="due date"
+              name="paymentdue"
+              required
             />
-            <TextInput type="date" label="due date" name="paymentdue" />
-            <TextInput type="text" label="payment terms" name="paymentterms" />
+            <TextInput
+              type="text"
+              label="payment terms"
+              name="paymentterms"
+              required
+            />
             <TextInput
               type="text"
               label="project/decription"
               name="description"
+              required
             />
           </InputContainer>
         </fieldset>
@@ -136,7 +166,7 @@ const NewInvoiceForm = () => {
           <InputContainer>
             {items.map((item, i) => (
               <FlexBox key={i} $variant="secondary" id="itemInput">
-                <TextInput name="name" label="item name" type="text" />
+                <TextInput name="name" label="item name" type="text" required />
                 <FlexBox>
                   <TextInput
                     name="quantity"
@@ -144,18 +174,21 @@ const NewInvoiceForm = () => {
                     type="number"
                     value={item.quantity}
                     step={1}
+                    required
                   />
                   <TextInput
                     name="price"
                     label="price"
                     type="number"
                     step={0.01}
+                    required
                   />
                   <TextInput
                     name="total"
                     label="total"
                     type="number"
                     step={0.01}
+                    required
                   />
                   <button
                     type="button"

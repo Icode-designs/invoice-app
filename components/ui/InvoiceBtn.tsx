@@ -1,26 +1,29 @@
 "use client";
 import { FlexBox, StyledInvoiceBtn } from "@/styles/components/UI.styles";
-import React from "react";
+import React, { useContext } from "react";
 import VariableButton from "./Button";
-import { handlePaidStatus } from "@/utils/actions/updateInvoice";
+import { FilterContext } from "@/providers/invoicesProvider";
+import { FormContext } from "@/providers/FormProvider";
 
 interface InvoiceBtnTypes {
-  toggleForm: () => void;
   id: string;
   openDialog: () => void;
   status: string;
 }
 
-const InvoiceBtn = ({
-  toggleForm,
-  id,
-  openDialog,
-  status,
-}: InvoiceBtnTypes) => {
+const InvoiceBtn = ({ id, openDialog, status }: InvoiceBtnTypes) => {
+  const filterCtx = useContext(FilterContext);
+  const formCtx = useContext(FormContext);
+
+  if (!filterCtx || !formCtx) {
+    return null;
+  }
+
+  const { toggleForm } = formCtx;
+  const { addPaidStatus } = filterCtx;
   // Todo: update status in realtime
   const onPaid = async () => {
-    await handlePaidStatus(id);
-    window.location.reload();
+    await addPaidStatus(id);
   };
   return (
     <StyledInvoiceBtn>

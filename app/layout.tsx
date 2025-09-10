@@ -24,9 +24,10 @@ export default function RootLayout({
         <StyledComponentsRegistry>
           <ThemeContextProvider>
             <Header />
-            <FilterContextProvider>
-              <FormContextProvider>{children}</FormContextProvider>
-            </FilterContextProvider>
+
+            <FormContextProvider>
+              <FilterContextProvider>{children} </FilterContextProvider>
+            </FormContextProvider>
           </ThemeContextProvider>
         </StyledComponentsRegistry>
       </body>
