@@ -5,12 +5,13 @@ import React from "react";
 interface Props {
   label: string;
   name: string;
-  type: "text" | "number" | "email" | "date" | "time" | null;
+  type: "text" | "number" | "email" | "date" | "time" | "password" | null;
   readOnly?: boolean;
   value?: string | number | null;
   step?: string | number | undefined;
   hidden?: boolean | undefined;
   required?: boolean | undefined;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const TextInput = ({
@@ -22,6 +23,7 @@ const TextInput = ({
   step,
   hidden,
   required,
+  onChange,
 }: Props) => {
   return (
     <StyledTextInput>
@@ -41,6 +43,7 @@ const TextInput = ({
         step={step}
         min={type === "number" ? 1 : undefined}
         hidden={hidden}
+        onChange={onChange}
       />
     </StyledTextInput>
   );

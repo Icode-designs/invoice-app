@@ -6,7 +6,7 @@ export const useMediaQuery = (media: number) => {
   const [isMedia, setIsMedia] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkScreen = () => setIsMedia(window.innerWidth >= media);
+    const checkScreen = () => setIsMedia(window.innerWidth >= Number(media));
     checkScreen();
     window.addEventListener("resize", checkScreen);
     return () => window.removeEventListener("resize", checkScreen);

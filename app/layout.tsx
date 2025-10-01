@@ -2,8 +2,9 @@ import StyledComponentsRegistry from "@/lib/registry";
 import type { Metadata } from "next";
 import ThemeContextProvider from "@/providers/themeProvider";
 import Header from "@/components/Header";
-import { FilterContextProvider } from "@/providers/invoicesProvider";
+import { InvoicesContextProvider } from "@/providers/invoicesProvider";
 import FormContextProvider from "@/providers/FormProvider";
+import UserContextProvider from "@/providers/UserProvider";
 
 export const metadata: Metadata = {
   title: "Invoice App | by Bonaventure",
@@ -23,11 +24,12 @@ export default function RootLayout({
       <body>
         <StyledComponentsRegistry>
           <ThemeContextProvider>
-            <Header />
-
-            <FormContextProvider>
-              <FilterContextProvider>{children} </FilterContextProvider>
-            </FormContextProvider>
+            <UserContextProvider>
+              <Header />
+              <FormContextProvider>
+                <InvoicesContextProvider>{children} </InvoicesContextProvider>
+              </FormContextProvider>
+            </UserContextProvider>
           </ThemeContextProvider>
         </StyledComponentsRegistry>
       </body>

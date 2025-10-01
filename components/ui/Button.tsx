@@ -41,7 +41,7 @@ const VariableButton = ({
           <FaPlus />
         </div>
       ) : variant === "btn-600" ? (
-        <FaPlus size={pxToRem(8)} />
+        <FaPlus className="icon" size={pxToRem(8)} />
       ) : null}
       <p>{children}</p>
     </ButtonStyles>

@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import { GoDotFill } from "react-icons/go";
 import { LuHash } from "react-icons/lu";
 import formatToEuro from "@/utils/helpers/formatToEuro";
-import { useMediaQuery } from "@/hooks/useMedia";
-import { FaAngleRight } from "react-icons/fa";
 import Link from "next/link";
 
 interface ListCardProps {
@@ -13,7 +11,6 @@ interface ListCardProps {
 }
 
 const ListCard = ({ invoice }: ListCardProps) => {
-  const isTablet = useMediaQuery(768);
   const [isLoading, setIsloading] = useState(false);
 
   function handleClick() {
@@ -40,7 +37,6 @@ const ListCard = ({ invoice }: ListCardProps) => {
           <GoDotFill size={12} />
           <h3>{invoice.status}</h3>
         </div>
-        {isTablet && <FaAngleRight className="icon angle" />}
       </StyledListCard>
     </Link>
   );

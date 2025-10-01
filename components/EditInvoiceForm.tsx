@@ -14,36 +14,45 @@ import { InvoiceType } from "@/types/api/invoiceType";
 import EditFormControl from "./ui/EditInvoiceControl";
 import { useContext, useEffect, useState } from "react";
 import { FormContext } from "@/providers/FormProvider";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 
 interface EditInvoiceType {
   isOpen: boolean;
   selectedInvoice: InvoiceType;
+  setSelectedInvoice: React.Dispatch<
+    React.SetStateAction<InvoiceType | undefined>
+  >;
 }
 
-const EditInvoiceForm = ({ isOpen, selectedInvoice }: EditInvoiceType) => {
+const EditInvoiceForm = ({
+  isOpen,
+  selectedInvoice,
+  setSelectedInvoice,
+}: EditInvoiceType) => {
   const [items, setItems] = useState(selectedInvoice.items);
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
   const formCtx = useContext(FormContext);
-  const filterCtx = useContext(FilterContext);
+  const invoicesCtx = useContext(InvoicesContext);
 
   // Sync selectedInvoice to latest local state from context
   useEffect(() => {
-    if (filterCtx) {
-      const latestInvoice = filterCtx.getInvoice(selectedInvoice.id);
+    if (invoicesCtx) {
+      const latestInvoice = invoicesCtx.getInvoice(
+        selectedInvoice.id as string
+      );
       if (latestInvoice) {
         setItems(latestInvoice.items);
       }
     }
-  }, [filterCtx, selectedInvoice.id]);
+  }, [invoicesCtx, selectedInvoice.id]);
 
   if (!formCtx) {
     return;
   }
 
   const { toggleForm } = formCtx;
-  const createDate = new Date(selectedInvoice.createdate)
+  const createDate = new Date(selectedInvoice.createdate as string)
     .toISOString()
     .split("T")[0];
 
@@ -108,6 +117,11 @@ const EditInvoiceForm = ({ isOpen, selectedInvoice }: EditInvoiceType) => {
             </FlexBox>
           </InputContainer>
         </fieldset>
+        <input
+          type="hidden"
+          name="status"
+          value={selectedInvoice.status || ""}
+        />
 
         <fieldset>
           <h3>bill to</h3>
@@ -245,7 +259,10 @@ const EditInvoiceForm = ({ isOpen, selectedInvoice }: EditInvoiceType) => {
           </VariableButton>
         </fieldset>
 
-        <EditFormControl invoiceId={selectedInvoice.id} />
+        <EditFormControl
+          invoiceId={selectedInvoice.id}
+          setSelectedInvoice={setSelectedInvoice}
+        />
       </StyledForm>
     </StyledFormContainer>
   );

@@ -55,6 +55,15 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
+  main{
+    position: relative;
+    max-width: var(--max-w);
+    margin: var(--centered);
+    padding: ${pxToRem(104)} ${pxToRem(24)};
+    padding-bottom: ${pxToRem(150)};
+    min-height: 100%;
+  }
+
   a{
     text-decoration: none;
     color: inherit;
@@ -137,6 +146,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
  .icon{
     color: var(--col-100);
     font-size: var(--icon-size);
+    opacity: 100% !important;
  }
 
   `;

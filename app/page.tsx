@@ -2,32 +2,31 @@
 import InvoiceList from "@/components/InvoiceList";
 import ListHeader from "@/components/ListHeader";
 import NewInvoiceForm from "@/components/NewInvoiceForm";
-import { FilterContext } from "@/providers/invoicesProvider";
-import { MainWrapper } from "@/styles/components/UI.styles";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 import { useContext, useEffect } from "react";
 
 export default function Home() {
-  const filterCtx = useContext(FilterContext);
+  const invoicesCtx = useContext(InvoicesContext);
   useEffect(() => {}, []);
 
-  if (!filterCtx) {
+  if (!invoicesCtx) {
     // Safety check if component is ever used outside provider
     return null;
   }
 
-  const { displayInvoices, isLoading, fetchErr } = filterCtx;
+  const { displayInvoices, isLoading, fetchErr } = invoicesCtx;
 
   return (
     <>
       <NewInvoiceForm />
-      <MainWrapper>
+      <main>
         <ListHeader
           displayInvoices={displayInvoices}
           isLoading={isLoading}
           fetchErr={fetchErr}
         />
         <InvoiceList displayInvoices={displayInvoices} isLoading={isLoading} />
-      </MainWrapper>
+      </main>
     </>
   );
 }

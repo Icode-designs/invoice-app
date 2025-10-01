@@ -2,28 +2,44 @@
 import { FlexBox, StyledInvoiceBtn } from "@/styles/components/UI.styles";
 import React, { useContext } from "react";
 import VariableButton from "./Button";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 import { FormContext } from "@/providers/FormProvider";
+
+import { InvoiceType } from "@/types/api/invoiceType";
+import { getInvoice } from "@/utils/actions/getUserInvoices";
+import { handlePaidStatus } from "@/utils/actions/updateInvoice";
 
 interface InvoiceBtnTypes {
   id: string;
   openDialog: () => void;
-  status: string;
+  status: string | null;
+  setSelectedInvoice: React.Dispatch<
+    React.SetStateAction<InvoiceType | undefined>
+  >;
 }
 
-const InvoiceBtn = ({ id, openDialog, status }: InvoiceBtnTypes) => {
-  const filterCtx = useContext(FilterContext);
+const InvoiceBtn = ({
+  id,
+  openDialog,
+  status,
+  setSelectedInvoice,
+}: InvoiceBtnTypes) => {
+  const invoicesCtx = useContext(InvoicesContext);
   const formCtx = useContext(FormContext);
 
-  if (!filterCtx || !formCtx) {
+  if (!invoicesCtx || !formCtx) {
     return null;
   }
 
   const { toggleForm } = formCtx;
-  const { addPaidStatus } = filterCtx;
-  // Todo: update status in realtime
+
   const onPaid = async () => {
-    await addPaidStatus(id);
+    setSelectedInvoice((prev) => {
+      if (!prev) return undefined;
+      return { ...prev, status: "paid" };
+    });
+
+    await handlePaidStatus(id);
   };
   return (
     <StyledInvoiceBtn>

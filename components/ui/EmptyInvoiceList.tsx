@@ -1,9 +1,19 @@
+"use client";
 import { StyledEmptyInvoice } from "@/styles/components/UI.styles";
 import Image from "next/image";
-import React from "react";
+import React, { useContext } from "react";
 import image from "@/assets/illustration-empty.svg";
+import { UserContext } from "@/providers/UserProvider";
 
 const EmptyInvoiceList = () => {
+  const userCtx = useContext(UserContext);
+
+  if (!userCtx) {
+    return;
+  }
+
+  const { authUser } = userCtx;
+
   return (
     <StyledEmptyInvoice>
       <div>
@@ -12,7 +22,9 @@ const EmptyInvoiceList = () => {
         <article>
           <h2>There is nothing here</h2>
           <p>
-            Create an invoice by clicking the New Invoice button and get started
+            {!authUser
+              ? "User is not logged in, login to see invoices"
+              : "Create an invoice by clicking the New Invoice button and get started"}
           </p>
         </article>
       </div>

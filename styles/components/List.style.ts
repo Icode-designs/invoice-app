@@ -122,9 +122,10 @@ export const StyledListCard = styled.li`
 
   @media (${QUERIES.TABLET}) {
     padding: ${pxToRem(16)};
-    grid-template-areas: "id due clientName amt status angle";
+    grid-template-areas: "id due clientName amt status";
     align-items: center;
     height: ${pxToRem(72)};
+    justify-content: space-between;
 
     .status {
       justify-self: unset;

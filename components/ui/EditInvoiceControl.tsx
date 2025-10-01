@@ -2,28 +2,39 @@
 import { FlexBox, StyledFormControl } from "@/styles/components/UI.styles";
 import React, { useContext } from "react";
 import VariableButton from "./Button";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 import { FormContext } from "@/providers/FormProvider";
 import { useFormStatus } from "react-dom";
+import { parseInvoiceForm } from "@/utils/helpers/parseInvoice";
+import { InvoiceType } from "@/types/api/invoiceType";
 
 interface ControlType {
-  invoiceId: string;
+  invoiceId: string | null;
+  setSelectedInvoice: React.Dispatch<
+    React.SetStateAction<InvoiceType | undefined>
+  >;
 }
 
-const EditFormControl = ({ invoiceId }: ControlType) => {
+const EditFormControl = ({ invoiceId, setSelectedInvoice }: ControlType) => {
   const { pending } = useFormStatus();
-  const filterCtx = useContext(FilterContext);
   const formCtx = useContext(FormContext);
+  const invoicesCtx = useContext(InvoicesContext);
 
-  if (!filterCtx || !formCtx) {
+  if (!formCtx || !invoicesCtx) {
     return;
   }
 
-  const { updateExistingInvoice } = filterCtx;
   const { toggleForm } = formCtx;
+  const { updateExistingInvoice } = invoicesCtx;
 
   async function handleSaveUpdate(formData: FormData) {
-    await updateExistingInvoice(formData, invoiceId);
+    const updatedInvoice = await parseInvoiceForm(
+      formData,
+      invoiceId as string
+    );
+    setSelectedInvoice(updatedInvoice);
+    await updateExistingInvoice(updatedInvoice);
+    toggleForm();
   }
 
   return (

@@ -1,4 +1,3 @@
-"use client";
 import { StyledInvoiceList } from "@/styles/components/List.style";
 import ListCard from "./ui/ListCard";
 import { LoaderBox } from "@/styles/components/UI.styles";
@@ -17,7 +16,10 @@ const InvoiceList = ({
   }
 
   displayInvoices = [...displayInvoices].sort((a, b) => {
-    return new Date(b.createdate).getTime() - new Date(a.createdate).getTime();
+    return (
+      new Date(b.createdate as string).getTime() -
+      new Date(a.createdate as string).getTime()
+    );
   });
 
   return (

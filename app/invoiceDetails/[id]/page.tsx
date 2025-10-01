@@ -1,23 +1,22 @@
 "use client";
-import { supabase } from "@/backend/supaBase";
 import EditInvoiceForm from "@/components/EditInvoiceForm";
 import DialogBox, { DialogBoxHandle } from "@/components/ui/DialogBox";
 import InvoiceBtn from "@/components/ui/InvoiceBtn";
 import { useMediaQuery } from "@/hooks/useMedia";
 import { FormContext } from "@/providers/FormProvider";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 import { StatusBox } from "@/styles/components/List.style";
 import {
   FlexBox,
   GridBox,
   LoaderBox,
-  MainWrapper,
   StyledAddressBox,
   StyledCard,
   StyledTable,
   TotalBox,
 } from "@/styles/components/UI.styles";
 import { InvoiceType } from "@/types/api/invoiceType";
+import { getInvoice } from "@/utils/actions/getUserInvoices";
 import formatToEuro from "@/utils/helpers/formatToEuro";
 import { useRouter } from "next/navigation";
 import React, { use, useContext, useEffect, useRef, useState } from "react";
@@ -28,7 +27,6 @@ import { LuHash } from "react-icons/lu";
 const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
   const dialogRef = useRef<DialogBoxHandle>(null);
   const formCtx = useContext(FormContext);
-  const filterCtx = useContext(FilterContext);
   const [selectedInvoice, setSelectedInvoice] = useState<
     InvoiceType | undefined
   >();
@@ -40,14 +38,24 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (filterCtx) {
-      const invoice = filterCtx.getInvoice(id);
-      setSelectedInvoice(invoice);
-      setIsLoading(false);
-    } else {
-      setFetchErr(true);
+    async function fetchData() {
+      try {
+        const { data } = await getInvoice(id);
+        setSelectedInvoice(data);
+        setIsLoading(false);
+      } catch (error) {
+        setFetchErr(true);
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        } else {
+          throw new Error("An unknown error occurred");
+        }
+        setIsLoading(false);
+      }
     }
-  }, [id, filterCtx]);
+
+    fetchData();
+  }, [id]);
 
   if (!formCtx) {
     // Safety check if component is ever used outside provider
@@ -66,26 +74,26 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
 
   if (isLoading) {
     return (
-      <MainWrapper>
+      <main>
         <LoaderBox />
-      </MainWrapper>
+      </main>
     );
   }
 
   if (fetchErr && !isLoading) {
     return (
-      <MainWrapper>
+      <main>
         <h3>Error getting invoice</h3>
-      </MainWrapper>
+      </main>
     );
   }
 
   if (!selectedInvoice) {
     return (
-      <MainWrapper>
+      <main>
         <h3>Invoice not found</h3>
         <p>No invoice found with ID: {id}</p>
-      </MainWrapper>
+      </main>
     );
   }
 
@@ -95,9 +103,13 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <>
-      <EditInvoiceForm isOpen={isOpen} selectedInvoice={selectedInvoice} />
+      <EditInvoiceForm
+        isOpen={isOpen}
+        selectedInvoice={selectedInvoice}
+        setSelectedInvoice={setSelectedInvoice}
+      />
       <DialogBox id={selectedInvoice.id} ref={dialogRef} />
-      <MainWrapper>
+      <main>
         <button onClick={handleBack}>
           <FlexBox>
             <FaAngleLeft className="icon" />
@@ -110,7 +122,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
               <p>Status</p>
 
               {/* Todo: Display Updated status Imediately it is updated */}
-              <StatusBox className={selectedInvoice.status}>
+              <StatusBox className={selectedInvoice.status || ""}>
                 <GoDotFill size={12} />
                 {selectedInvoice.status}
               </StatusBox>
@@ -120,6 +132,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
                 id={selectedInvoice.id}
                 openDialog={openDialog}
                 status={selectedInvoice.status}
+                setSelectedInvoice={setSelectedInvoice}
               />
             )}
           </FlexBox>
@@ -236,9 +249,10 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
             id={selectedInvoice.id}
             openDialog={openDialog}
             status={selectedInvoice.status}
+            setSelectedInvoice={setSelectedInvoice}
           />
         )}
-      </MainWrapper>
+      </main>
     </>
   );
 };

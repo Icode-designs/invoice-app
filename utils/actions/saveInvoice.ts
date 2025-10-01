@@ -1,65 +1,36 @@
 "use server";
 
-import { supabase } from "@/backend/supaBase";
 import { Address, InvoiceType } from "@/types/api/invoiceType";
 import { redirect } from "next/navigation";
-
-function generateId() {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-// Helper function to safely handle form data
-function getFormValue(formData: FormData, key: string): string | null {
-  const value = formData.get(key);
-  if (value === null || value === undefined) return null;
-  const stringValue = String(value).trim();
-  return stringValue === "" ? null : stringValue;
-}
-
-// Helper function to handle date values specifically - FIXED
-function getDateValue(formData: FormData, key: string): string | null {
-  const value = getFormValue(formData, key);
-  if (!value) return null;
-
-  // Validate date format (YYYY-MM-DD)
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(value)) {
-    throw new Error(`Invalid date format for ${key}: ${value}`);
-  }
-
-  return value;
-}
-
-// Helper function to handle number values
-function getNumberValue(
-  formData: FormData,
-  key: string,
-  defaultValue = 0
-): number {
-  const value = getFormValue(formData, key);
-  if (!value) return defaultValue;
-
-  const num = Number(value);
-  if (isNaN(num)) {
-    throw new Error(`Invalid number for ${key}: ${value}`);
-  }
-
-  return num;
-}
+import {
+  getDateValue,
+  getFormValue,
+  getNumberValue,
+} from "../helpers/validation";
+import { generateId } from "../constants";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 // Main save function with proper return type
 export async function saveInvoice(
   formData: FormData,
   status: "draft" | "pending"
 ): Promise<{ success: boolean; data?: InvoiceType; error?: string }> {
+  const supabase = createServerComponentClient({
+    cookies,
+  });
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error("Auth error:", userError);
+    throw new Error("Not authenticated — cannot save invoice");
+  }
+
   try {
-    // Debug: Log all form data
     console.log("=== FORM DATA DEBUG ===");
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: "${value}" (type: ${typeof value})`);
@@ -76,6 +47,7 @@ export async function saveInvoice(
     const paymentterms = getNumberValue(formData, "paymentterms", 0);
     const clientname = getFormValue(formData, "clientname");
     const clientemail = getFormValue(formData, "clientemail");
+    const user_id = user.id;
 
     // Validate required client information
     if (!clientname || !clientemail) {
@@ -159,6 +131,7 @@ export async function saveInvoice(
       senderaddress,
       clientaddress,
       items,
+      user_id,
     };
 
     console.log("Attempting to save invoice:", invoiceObj);

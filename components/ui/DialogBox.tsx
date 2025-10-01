@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import VariableButton from "./Button";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 
 // Define the shape of the exposed methods
 export interface DialogBoxHandle {
@@ -17,7 +17,7 @@ export interface DialogBoxHandle {
 
 const DialogBox = forwardRef<DialogBoxHandle, { id: string }>(({ id }, ref) => {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
-  const filterCtx = useContext(FilterContext);
+  const invoicesCtx = useContext(InvoicesContext);
   const [deleting, setDeleting] = useState(false);
 
   // Expose the open method to parent
@@ -31,11 +31,11 @@ const DialogBox = forwardRef<DialogBoxHandle, { id: string }>(({ id }, ref) => {
     []
   );
 
-  if (!filterCtx) {
+  if (!invoicesCtx) {
     return null;
   }
 
-  const { deleteInvoiceData } = filterCtx;
+  const { deleteInvoiceData } = invoicesCtx;
 
   const handleCloseDialog = () => {
     dialogRef.current?.close();

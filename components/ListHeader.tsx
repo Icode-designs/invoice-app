@@ -4,34 +4,57 @@ import { ListTitleBox, StyledListHeader } from "@/styles/components/List.style";
 import React from "react";
 import ListControl from "./ui/ListControl";
 import { InvoiceType } from "@/types/api/invoiceType";
+import QUERIES from "@/styles/mediaQueries";
+
+interface ListHeaderProps {
+  displayInvoices: InvoiceType[];
+  totalInvoices?: number; // Total count before filtering
+  isLoading: boolean;
+  fetchErr: string | null;
+  hasActiveFilters?: boolean; // Whether any filters are applied
+}
 
 const ListHeader = ({
   displayInvoices,
+  totalInvoices,
   isLoading,
   fetchErr,
-}: {
-  displayInvoices: InvoiceType[];
-  isLoading: boolean;
-  fetchErr: string | null;
-}) => {
+  hasActiveFilters = false,
+}: ListHeaderProps) => {
   const isDesktop = useMediaQuery(1024);
 
-  //set wrapper based on screen size for responsiveness
+  // Set wrapper based on screen size for responsiveness
   const Wrapper = isDesktop ? "h1" : "h2";
+
+  // Generate status message
+  const getStatusMessage = (): string => {
+    if (isLoading) return "Loading invoices...";
+
+    if (fetchErr) return "Could not load invoice list";
+
+    const displayCount = displayInvoices.length;
+    const total = totalInvoices ?? displayCount;
+
+    if (displayCount === 0) {
+      return hasActiveFilters
+        ? "No invoices match your current filters"
+        : "No invoices found";
+    }
+
+    if (hasActiveFilters && displayCount < total) {
+      return `Showing ${displayCount} of ${total} invoice${
+        total !== 1 ? "s" : ""
+      }`;
+    }
+
+    return `${displayCount} invoice${displayCount !== 1 ? "s" : ""} total`;
+  };
+
   return (
     <StyledListHeader>
       <ListTitleBox>
         <Wrapper>Invoices</Wrapper>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <p>
-            {fetchErr && "could not read invoice list"}
-            {!isLoading && !fetchErr && displayInvoices.length > 0
-              ? `There are ${displayInvoices.length} total invoice`
-              : "No invoice matches your filter"}
-          </p>
-        )}
+        <p>{getStatusMessage()}</p>
       </ListTitleBox>
       <ListControl />
     </StyledListHeader>

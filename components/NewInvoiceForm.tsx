@@ -4,7 +4,7 @@ import {
   StyledForm,
   StyledFormContainer,
 } from "@/styles/components/NewInvoiceForm.styles";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import TextInput from "./ui/TextInput";
 import { FlexBox } from "@/styles/components/UI.styles";
 import { FormContext } from "@/providers/FormProvider";
@@ -13,61 +13,93 @@ import { useMediaQuery } from "@/hooks/useMedia";
 import VariableButton from "./ui/Button";
 import { MdDelete } from "react-icons/md";
 import FormControl from "./ui/FormControl";
-import { Item } from "@/types/api/invoiceType";
+import { UserContext } from "@/providers/UserProvider";
+import Link from "next/link";
 
 const NewInvoiceForm = () => {
+  const userCtx = useContext(UserContext);
   const formCtx = useContext(FormContext);
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
-  const [items, setItems] = useState<Item[]>([
-    { name: "", quantity: 1, total: null, price: null },
-  ]);
-  const [currentDate, setCurrentDate] = useState("");
-  const [currentTime, setCurrentTime] = useState("");
+
+  const [formData, setFormData] = useState({
+    senderAddress: "",
+    senderCity: "",
+    senderPostcode: "",
+    senderCountry: "",
+    clientname: "",
+    clientemail: "",
+    recieverAddress: "",
+    recieverCity: "",
+    recieverPostcode: "",
+    recieverCountry: "",
+    paymentdue: "",
+    paymentterms: "",
+    description: "",
+    items: [{ name: "", quantity: 1, total: null, price: null }],
+  });
 
   useEffect(() => {
-    const now = new Date();
-    const timeString = now.toTimeString().slice(0, 5); // "HH:mm"
-    setCurrentTime(timeString);
-  }, []);
+    if (userCtx?.userProfile) {
+      setFormData((prev) => ({
+        ...prev,
+        senderAddress: userCtx.userProfile?.address.street || "",
+        senderCity: userCtx.userProfile?.address.city || "",
+        senderPostcode: userCtx.userProfile?.address.postCode || "",
+        senderCountry: userCtx.userProfile?.address.country || "",
+      }));
+    }
+  }, [userCtx?.userProfile]);
 
-  // Set the current date on the client side to avoid hydration mismatch
-  useEffect(() => {
-    setCurrentDate(new Date().toISOString().split("T")[0]);
-  }, []);
-
-  if (!formCtx) {
+  if (!formCtx || !userCtx) {
     // Safety check if component is ever used outside provider
     return null;
   }
 
   const { isOpen, toggleForm } = formCtx;
 
-  function removeItem(i: number) {
-    if (i === 0) {
-      return;
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    setItems(items.filter((_, index) => index !== i));
+  const handleItemChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    const items = [...formData.items];
+    items[index] = { ...items[index], [name]: value };
+    setFormData((prev) => ({ ...prev, items }));
+  };
+
+  function removeItem(i: number) {
+    if (formData.items.length > 1) {
+      const items = formData.items.filter((_, index) => index !== i);
+      setFormData((prev) => ({ ...prev, items }));
+    }
   }
 
   function addItem() {
-    setItems((prevItems) => [
-      ...prevItems,
-      { name: "", quantity: 1, total: null, price: null },
-    ]);
+    setFormData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        { name: "", quantity: 1, total: null, price: null },
+      ],
+    }));
   }
 
   return (
     <StyledFormContainer $isOpen={isOpen}>
       <StyledForm>
         {!isLargeScreen && (
-          <button onClick={toggleForm}>
+          <Link href="/" onClick={toggleForm}>
             <FlexBox>
               <FaAngleLeft className="icon" />
               <span> Go Back</span>
             </FlexBox>
-          </button>
+          </Link>
         )}
         <Wrapper>New Form</Wrapper>
         <p>(fieds with * on their label are required)</p>
@@ -80,17 +112,33 @@ const NewInvoiceForm = () => {
               label="Street Address"
               name="senderAddress"
               type="text"
+              value={formData.senderAddress}
+              onChange={handleChange}
             />
             <FlexBox $variant="secondary">
               <FlexBox>
-                <TextInput label="City" name="senderCity" type="text" />
+                <TextInput
+                  label="City"
+                  name="senderCity"
+                  type="text"
+                  value={formData.senderCity}
+                  onChange={handleChange}
+                />
                 <TextInput
                   label="Post Code"
                   name="senderPostcode"
                   type="number"
+                  value={formData.senderPostcode}
+                  onChange={handleChange}
                 />
               </FlexBox>
-              <TextInput label="country" name="senderCountry" type="text" />
+              <TextInput
+                label="country"
+                name="senderCountry"
+                type="text"
+                value={formData.senderCountry}
+                onChange={handleChange}
+              />
             </FlexBox>
           </InputContainer>
         </fieldset>
@@ -102,18 +150,24 @@ const NewInvoiceForm = () => {
               label="client's name"
               name="clientname"
               type="text"
+              value={formData.clientname}
+              onChange={handleChange}
               required
             />
             <TextInput
               label="client's email"
               name="clientemail"
               type="email"
+              value={formData.clientemail}
+              onChange={handleChange}
               required
             />
             <TextInput
               label="street address"
               name="recieverAddress"
               type="text"
+              value={formData.recieverAddress}
+              onChange={handleChange}
               required
             />
 
@@ -123,12 +177,16 @@ const NewInvoiceForm = () => {
                   label="City"
                   name="recieverCity"
                   type="text"
+                  value={formData.recieverCity}
+                  onChange={handleChange}
                   required
                 />
                 <TextInput
                   label="Post Code"
                   name="recieverPostcode"
                   type="number"
+                  value={formData.recieverPostcode}
+                  onChange={handleChange}
                   required
                 />
               </FlexBox>
@@ -136,6 +194,8 @@ const NewInvoiceForm = () => {
                 label="recieverCountry"
                 name="recieverCountry"
                 type="text"
+                value={formData.recieverCountry}
+                onChange={handleChange}
                 required
               />
             </FlexBox>
@@ -144,18 +204,24 @@ const NewInvoiceForm = () => {
               type="date"
               label="due date"
               name="paymentdue"
+              value={formData.paymentdue}
+              onChange={handleChange}
               required
             />
             <TextInput
               type="text"
               label="payment terms"
               name="paymentterms"
+              value={formData.paymentterms}
+              onChange={handleChange}
               required
             />
             <TextInput
               type="text"
               label="project/decription"
               name="description"
+              value={formData.description}
+              onChange={handleChange}
               required
             />
           </InputContainer>
@@ -164,15 +230,23 @@ const NewInvoiceForm = () => {
         <fieldset className="itemList">
           <h2>Item List</h2>
           <InputContainer>
-            {items.map((item, i) => (
+            {formData.items.map((item, i) => (
               <FlexBox key={i} $variant="secondary" id="itemInput">
-                <TextInput name="name" label="item name" type="text" required />
+                <TextInput
+                  name="name"
+                  label="item name"
+                  type="text"
+                  value={item.name}
+                  onChange={(e) => handleItemChange(i, e)}
+                  required
+                />
                 <FlexBox>
                   <TextInput
                     name="quantity"
                     label="QTY"
                     type="number"
                     value={item.quantity}
+                    onChange={(e) => handleItemChange(i, e)}
                     step={1}
                     required
                   />
@@ -180,6 +254,8 @@ const NewInvoiceForm = () => {
                     name="price"
                     label="price"
                     type="number"
+                    value={item.price}
+                    onChange={(e) => handleItemChange(i, e)}
                     step={0.01}
                     required
                   />
@@ -187,6 +263,8 @@ const NewInvoiceForm = () => {
                     name="total"
                     label="total"
                     type="number"
+                    value={item.total}
+                    onChange={(e) => handleItemChange(i, e)}
                     step={0.01}
                     required
                   />
@@ -194,6 +272,8 @@ const NewInvoiceForm = () => {
                     type="button"
                     onClick={() => removeItem(i)}
                     className="deleteBtn"
+                    aria-label="Delete item"
+                    disabled={formData.items.length === 1}
                   >
                     <MdDelete size={32} color="var(--col-600)" />
                   </button>

@@ -2,19 +2,19 @@ import { FlexBox, StyledFormControl } from "@/styles/components/UI.styles";
 import React, { useContext } from "react";
 import VariableButton from "./Button";
 import { FormContext } from "@/providers/FormProvider";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 import { useFormStatus } from "react-dom";
 
 const FormControl = () => {
   const formCtx = useContext(FormContext);
   const { pending } = useFormStatus();
-  const filterCtx = useContext(FilterContext);
+  const invoicesCtx = useContext(InvoicesContext);
 
-  if (!formCtx || !filterCtx) {
+  if (!formCtx || !invoicesCtx) {
     return;
   }
 
-  const { saveNewPendingInvoice, saveNewDraftInvoice } = filterCtx;
+  const { saveNewPendingInvoice, saveNewDraftInvoice } = invoicesCtx;
 
   const { toggleForm } = formCtx;
 

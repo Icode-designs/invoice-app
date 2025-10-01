@@ -67,7 +67,7 @@ export const HeaderActions = styled.div`
   }
 `;
 
-export const HeaderAvatar = styled.div`
+export const HeaderSessionAction = styled.div`
   border-left: 1px solid #494e6e;
   img {
     border-radius: 50%;

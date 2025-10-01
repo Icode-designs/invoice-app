@@ -13,16 +13,17 @@ export interface Item {
 }
 
 export type InvoiceType = {
-  id: string;
-  createdate: string;
+  id: string | null;
+  createdate: string | null;
   paymentdue: string | null;
-  description: string;
-  paymentterms: number;
-  clientname: string;
-  clientemail: string;
-  status: "draft" | "pending" | "paid";
+  description: string | null;
+  paymentterms: number | null;
+  clientname: string | null;
+  clientemail: string | null;
+  status: string | null;
   senderaddress: Address;
   clientaddress: Address;
   items: Item[];
   total: number;
+  user_id?: string | null;
 };

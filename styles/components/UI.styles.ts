@@ -99,24 +99,18 @@ export const ButtonStyles = styled.button<{ $variant?: string }>`
     $variant === "btn-600" &&
     css`
       background-color: ${({ theme }) => theme.colors.button600};
-      color: var(--col-700);
       justify-content: center;
       width: 100%;
-      gap: 0;
+      gap: ${pxToRem(5)};
+
+      p {
+        color: var(--col-800);cd 
+      }
 
       &:hover {
         background-color: ${({ theme }) => theme.colors.button600Hover};
       }
     `}
-`;
-
-export const MainWrapper = styled.main`
-  position: relative;
-  max-width: var(--max-w);
-  margin: var(--centered);
-  padding: ${pxToRem(104)} ${pxToRem(24)};
-  padding-bottom: ${pxToRem(150)};
-  min-height: 100%;
 `;
 
 export const LoaderBox = styled.div<{ $variant?: string }>`
@@ -173,7 +167,7 @@ export const StyledTextInput = styled.div`
     text-transform: capitalize;
     span {
       color: red;
-      opacity: 100%;
+      opacity: unset;
     }
   }
 
@@ -352,4 +346,37 @@ export const StyledDialogBox = styled.dialog`
     opacity: 1;
     visibility: visible;
   }
+`;
+
+export const PasswordContainer = styled.div`
+  display: flex;
+  position: relative;
+  height: fit-content;
+  width: 100%;
+  border: none;
+  background: transparent;
+  align-items: center;
+
+  input {
+    padding-right: ${pxToRem(30)};
+  }
+
+  button {
+    position: absolute;
+    display: flex;
+    right: ${pxToRem(8)};
+    align-self: center;
+    width: fit-content;
+    height: fit-content;
+    transform: translateY(${pxToRem(7)});
+
+    p {
+      font: ${pxToRem(20)};
+    }
+  }
+`;
+
+export const StyledErrorMessage = styled.p`
+  opacity: 100%;
+  color: red;
 `;

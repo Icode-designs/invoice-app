@@ -1,5 +1,5 @@
 "use client";
-import { FilterContext } from "@/providers/invoicesProvider";
+import { InvoicesContext } from "@/providers/invoicesProvider";
 import { StyledCheckBox } from "@/styles/components/UI.styles";
 import React, { useContext, useRef } from "react";
 
@@ -9,16 +9,16 @@ interface CheckInput {
 }
 
 const CheckBoxInput = ({ name, label }: CheckInput) => {
-  const filterCtx = useContext(FilterContext);
+  const invoiceCtx = useContext(InvoicesContext);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  if (!filterCtx) {
+  if (!invoiceCtx) {
     // Safety check if component is ever used outside provider
     return null;
   }
 
   //distructure filter context
-  const { addFilter, removeFilter, filters } = filterCtx;
+  const { addFilter, removeFilter, filters } = invoiceCtx;
   const checked = filters.includes(name);
 
   //input change event handler

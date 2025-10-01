@@ -1,5 +1,4 @@
 "use client";
-import useFetch from "@/hooks/useFetchData";
 import { InvoiceType } from "@/types/api/invoiceType";
 import { saveInvoice } from "@/utils/actions/saveInvoice";
 import {
@@ -8,11 +7,12 @@ import {
   handlePaidStatus,
   updateInvoice,
 } from "@/utils/actions/updateInvoice";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { FormContext } from "./FormProvider";
+import useFetchInvoices from "@/hooks/useFetchInvoices";
 
-interface FilterContextType {
+interface InvoicesContextType {
   filters: string[];
   addFilter: (f: string) => void;
   removeFilter: (f: string) => void;
@@ -21,35 +21,31 @@ interface FilterContextType {
   fetchErr: string | null;
   saveNewPendingInvoice: (formData: FormData) => Promise<void>;
   saveNewDraftInvoice: (formData: FormData) => Promise<void>;
-  updateExistingInvoice: (formData: FormData, id: string) => Promise<void>;
+  updateExistingInvoice: (updatedInvoice: InvoiceType) => Promise<void>;
   deleteInvoiceData: (id: string) => Promise<void>;
   addPaidStatus: (id: string) => Promise<void>;
   addDraftStatus: (id: string) => Promise<void>;
   getInvoice: (id: string) => InvoiceType | undefined;
 }
 
-export const FilterContext = createContext<FilterContextType | null>(null);
+export const InvoicesContext = createContext<InvoicesContextType | null>(null);
 
-export const FilterContextProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const InvoicesContextProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const [filters, setFilters] = useState<string[]>([]);
-  const location = usePathname();
-  const { invoices, fetchErr, isLoading } = useFetch(location);
+  const { invoices, fetchErr, isLoading } = useFetchInvoices();
   const [invoiceList, setInvoiceList] = useState<InvoiceType[]>([]);
   const formCtx = useContext(FormContext);
   const router = useRouter();
 
   //sync invoiceList
   useEffect(() => {
-    if (invoices.length > 0 && invoiceList.length === 0) {
-      setInvoiceList(invoices);
-    }
-  }, [invoices, invoiceList.length]);
+    setInvoiceList(invoices);
+  }, [invoices]);
 
   if (!formCtx) {
-    console.log("couldnt get form context");
-    return;
+    return null;
   }
 
   const { toggleForm } = formCtx;
@@ -89,16 +85,26 @@ export const FilterContextProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   //update existing invoices
-  async function updateExistingInvoice(formData: FormData, id: string) {
-    const { data } = await updateInvoice(formData, id);
+  async function updateExistingInvoice(invoiceObj: InvoiceType) {
+    try {
+      const { success, data, error } = await updateInvoice(invoiceObj);
 
-    if (data) {
-      setInvoiceList((prev) =>
-        prev.map((inv) => (inv.id === data.id ? data : inv))
-      );
+      if (success && data) {
+        console.log("Updated invoice:", data);
+
+        setInvoiceList((prevInvoices) =>
+          prevInvoices.map((inv) => (inv.id === data.id ? data : inv))
+        );
+      } else {
+        console.error(
+          "Update failed:",
+          error ?? "Unknown error from server action"
+        );
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Unexpected error updating invoice:", message);
     }
-
-    toggleForm();
   }
 
   //add paid status and update state
@@ -132,9 +138,10 @@ export const FilterContextProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   //set displayed invoices based on filter
+
   const displayInvoices =
     filters.length > 0
-      ? invoiceList.filter((item) => filters.includes(item.status))
+      ? invoiceList.filter((item) => filters.includes(item.status as string))
       : invoiceList;
 
   const value = {
@@ -153,6 +160,8 @@ export const FilterContextProvider: React.FC<{ children: React.ReactNode }> = ({
     getInvoice,
   };
   return (
-    <FilterContext.Provider value={value}>{children}</FilterContext.Provider>
+    <InvoicesContext.Provider value={value}>
+      {children}
+    </InvoicesContext.Provider>
   );
 };
