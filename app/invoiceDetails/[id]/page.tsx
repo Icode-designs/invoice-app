@@ -97,7 +97,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
     );
   }
 
-  const createDate = new Date(selectedInvoice.createdate)
+  const createDate = new Date(selectedInvoice.createdate as string)
     .toISOString()
     .split("T")[0];
 
@@ -108,7 +108,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
         selectedInvoice={selectedInvoice}
         setSelectedInvoice={setSelectedInvoice}
       />
-      <DialogBox id={selectedInvoice.id} ref={dialogRef} />
+      <DialogBox id={selectedInvoice.id as string} ref={dialogRef} />
       <main>
         <button onClick={handleBack}>
           <FlexBox>
@@ -129,7 +129,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
             </FlexBox>
             {isLargeScreen && (
               <InvoiceBtn
-                id={selectedInvoice.id}
+                id={selectedInvoice.id as string}
                 openDialog={openDialog}
                 status={selectedInvoice.status}
                 setSelectedInvoice={setSelectedInvoice}
@@ -246,7 +246,7 @@ const InvoiceInfo = ({ params }: { params: Promise<{ id: string }> }) => {
         </StyledCard>
         {!isLargeScreen && (
           <InvoiceBtn
-            id={selectedInvoice.id}
+            id={selectedInvoice.id as string}
             openDialog={openDialog}
             status={selectedInvoice.status}
             setSelectedInvoice={setSelectedInvoice}
