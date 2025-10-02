@@ -6,7 +6,7 @@ import {
 } from "@/styles/components/NewInvoiceForm.styles";
 import React, { useContext, useState, useEffect } from "react";
 import TextInput from "./ui/TextInput";
-import { FlexBox } from "@/styles/components/UI.styles";
+import { FlexBox, StyledTextInput } from "@/styles/components/UI.styles";
 import { FormContext } from "@/providers/FormProvider";
 import { FaAngleLeft } from "react-icons/fa";
 import { useMediaQuery } from "@/hooks/useMedia";
@@ -15,6 +15,7 @@ import { MdDelete } from "react-icons/md";
 import FormControl from "./ui/FormControl";
 import { UserContext } from "@/providers/UserProvider";
 import Link from "next/link";
+import { Item } from "@/types/api/invoiceType";
 
 const NewInvoiceForm = () => {
   const userCtx = useContext(UserContext);
@@ -36,7 +37,7 @@ const NewInvoiceForm = () => {
     paymentdue: "",
     paymentterms: "",
     description: "",
-    items: [{ name: "", quantity: 1, total: null, price: null }],
+    items: [{ name: "", quantity: "", total: "", price: "" }] as Item[],
   });
 
   useEffect(() => {
@@ -58,21 +59,6 @@ const NewInvoiceForm = () => {
 
   const { isOpen, toggleForm } = formCtx;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleItemChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    const items = [...formData.items];
-    items[index] = { ...items[index], [name]: value };
-    setFormData((prev) => ({ ...prev, items }));
-  };
-
   function removeItem(i: number) {
     if (formData.items.length > 1) {
       const items = formData.items.filter((_, index) => index !== i);
@@ -83,11 +69,32 @@ const NewInvoiceForm = () => {
   function addItem() {
     setFormData((prev) => ({
       ...prev,
-      items: [
-        ...prev.items,
-        { name: "", quantity: 1, total: null, price: null },
-      ],
+      items: [...prev.items, { name: "", quantity: "", total: "", price: "" }],
     }));
+  }
+
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number,
+    field: "quantity" | "price" | "name"
+  ) {
+    const rawValue = event.target.value;
+    const value =
+      field === "name" ? rawValue : rawValue === "" ? "" : parseFloat(rawValue);
+
+    setFormData((prev) => {
+      const updatedItems = [...prev.items];
+      const currentItem = { ...updatedItems[index], [field]: value };
+
+      if (field === "quantity" || field === "price") {
+        const qty = Number(currentItem.quantity) || 0;
+        const price = Number(currentItem.price) || 0;
+        currentItem.total = qty * price;
+      }
+
+      updatedItems[index] = currentItem;
+      return { ...prev, items: updatedItems };
+    });
   }
 
   return (
@@ -113,7 +120,6 @@ const NewInvoiceForm = () => {
               name="senderAddress"
               type="text"
               value={formData.senderAddress}
-              onChange={handleChange}
             />
             <FlexBox $variant="secondary">
               <FlexBox>
@@ -122,14 +128,12 @@ const NewInvoiceForm = () => {
                   name="senderCity"
                   type="text"
                   value={formData.senderCity}
-                  onChange={handleChange}
                 />
                 <TextInput
                   label="Post Code"
                   name="senderPostcode"
                   type="number"
                   value={formData.senderPostcode}
-                  onChange={handleChange}
                 />
               </FlexBox>
               <TextInput
@@ -137,7 +141,6 @@ const NewInvoiceForm = () => {
                 name="senderCountry"
                 type="text"
                 value={formData.senderCountry}
-                onChange={handleChange}
               />
             </FlexBox>
           </InputContainer>
@@ -151,7 +154,6 @@ const NewInvoiceForm = () => {
               name="clientname"
               type="text"
               value={formData.clientname}
-              onChange={handleChange}
               required
             />
             <TextInput
@@ -159,7 +161,6 @@ const NewInvoiceForm = () => {
               name="clientemail"
               type="email"
               value={formData.clientemail}
-              onChange={handleChange}
               required
             />
             <TextInput
@@ -167,7 +168,6 @@ const NewInvoiceForm = () => {
               name="recieverAddress"
               type="text"
               value={formData.recieverAddress}
-              onChange={handleChange}
               required
             />
 
@@ -178,7 +178,6 @@ const NewInvoiceForm = () => {
                   name="recieverCity"
                   type="text"
                   value={formData.recieverCity}
-                  onChange={handleChange}
                   required
                 />
                 <TextInput
@@ -186,7 +185,6 @@ const NewInvoiceForm = () => {
                   name="recieverPostcode"
                   type="number"
                   value={formData.recieverPostcode}
-                  onChange={handleChange}
                   required
                 />
               </FlexBox>
@@ -195,7 +193,6 @@ const NewInvoiceForm = () => {
                 name="recieverCountry"
                 type="text"
                 value={formData.recieverCountry}
-                onChange={handleChange}
                 required
               />
             </FlexBox>
@@ -205,7 +202,6 @@ const NewInvoiceForm = () => {
               label="due date"
               name="paymentdue"
               value={formData.paymentdue}
-              onChange={handleChange}
               required
             />
             <TextInput
@@ -213,7 +209,6 @@ const NewInvoiceForm = () => {
               label="payment terms"
               name="paymentterms"
               value={formData.paymentterms}
-              onChange={handleChange}
               required
             />
             <TextInput
@@ -221,7 +216,6 @@ const NewInvoiceForm = () => {
               label="project/decription"
               name="description"
               value={formData.description}
-              onChange={handleChange}
               required
             />
           </InputContainer>
@@ -232,41 +226,63 @@ const NewInvoiceForm = () => {
           <InputContainer>
             {formData.items.map((item, i) => (
               <FlexBox key={i} $variant="secondary" id="itemInput">
-                <TextInput
-                  name="name"
-                  label="item name"
-                  type="text"
-                  value={item.name}
-                  onChange={(e) => handleItemChange(i, e)}
-                  required
-                />
-                <FlexBox>
-                  <TextInput
-                    name="quantity"
-                    label="QTY"
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => handleItemChange(i, e)}
+                <StyledTextInput>
+                  <label htmlFor="name">
+                    <p>Item Name</p>
+                  </label>
+                  <input
+                    type="text"
+                    name="itemname[]"
                     step={1}
+                    value={item.name}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      handleChange(event, i, "name")
+                    }
                     required
                   />
+                </StyledTextInput>
+
+                <FlexBox>
+                  <StyledTextInput>
+                    <label htmlFor="quantity">
+                      <p>QTY</p>
+                    </label>
+                    <input
+                      type="number"
+                      name="quantity[]"
+                      step={1}
+                      value={item.quantity as string}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(event, i, "quantity")
+                      }
+                      required
+                    />
+                  </StyledTextInput>
+
+                  <StyledTextInput>
+                    <label htmlFor="price">
+                      <p>Price</p>
+                    </label>
+                    <input
+                      type="number"
+                      id="price"
+                      name="price[]"
+                      required
+                      step={0.01}
+                      value={item.price as string}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(event, i, "price")
+                      }
+                    />
+                  </StyledTextInput>
+
                   <TextInput
-                    name="price"
-                    label="price"
-                    type="number"
-                    value={item.price}
-                    onChange={(e) => handleItemChange(i, e)}
-                    step={0.01}
-                    required
-                  />
-                  <TextInput
-                    name="total"
+                    name="total[]"
                     label="total"
                     type="number"
                     value={item.total}
-                    onChange={(e) => handleItemChange(i, e)}
                     step={0.01}
-                    required
+                    readOnly
                   />
                   <button
                     type="button"

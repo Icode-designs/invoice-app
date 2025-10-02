@@ -10,6 +10,7 @@ import {
 import { generateId } from "../constants";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { parseInvoiceForm } from "../helpers/parseInvoice";
 
 // Main save function with proper return type
 export async function saveInvoice(
@@ -39,100 +40,103 @@ export async function saveInvoice(
 
     const id = generateId();
 
-    // Handle dates properly
-    const paymentdue = getDateValue(formData, "paymentdue");
+    formData.set("status", status);
+    const invoiceObj = await parseInvoiceForm(formData, id);
 
-    // Handle other fields safely
-    const description = getFormValue(formData, "description") || "";
-    const paymentterms = getNumberValue(formData, "paymentterms", 0);
-    const clientname = getFormValue(formData, "clientname");
-    const clientemail = getFormValue(formData, "clientemail");
-    const user_id = user.id;
+    // // Handle dates properly
+    // const paymentdue = getDateValue(formData, "paymentdue");
 
-    // Validate required client information
-    if (!clientname || !clientemail) {
-      throw new Error("Client name and email are required");
-    }
+    // // Handle other fields safely
+    // const description = getFormValue(formData, "description") || "";
+    // const paymentterms = getNumberValue(formData, "paymentterms", 0);
+    // const clientname = getFormValue(formData, "clientname");
+    // const clientemail = getFormValue(formData, "clientemail");
+    // const user_id = user.id;
 
-    // Handle multiple items - check both naming conventions
-    let totalArr = formData.getAll("total");
-    if (totalArr.length === 0) {
-      // Fallback to single field name if array notation not found
-      const singleTotal = formData.get("total");
-      totalArr = singleTotal ? [singleTotal] : [];
-    }
+    // // Validate required client information
+    // if (!clientname || !clientemail) {
+    //   throw new Error("Client name and email are required");
+    // }
 
-    const total = totalArr
-      .map((val) => {
-        const num = Number(val);
-        return isNaN(num) ? 0 : num;
-      })
-      .reduce((acc, curr) => acc + curr, 0);
+    // // Handle multiple items - check both naming conventions
+    // let totalArr = formData.getAll("total");
+    // if (totalArr.length === 0) {
+    //   // Fallback to single field name if array notation not found
+    //   const singleTotal = formData.get("total");
+    //   totalArr = singleTotal ? [singleTotal] : [];
+    // }
 
-    // Build addresses safely
-    const clientaddress: Address = {
-      street: getFormValue(formData, "recieverAddress") || "",
-      city: getFormValue(formData, "recieverCity") || "",
-      postCode: getFormValue(formData, "recieverPostcode") || "",
-      country: getFormValue(formData, "recieverCountry") || "",
-    };
+    // const total = totalArr
+    //   .map((val) => {
+    //     const num = Number(val);
+    //     return isNaN(num) ? 0 : num;
+    //   })
+    //   .reduce((acc, curr) => acc + curr, 0);
 
-    const senderaddress: Address = {
-      street: getFormValue(formData, "senderAddress") || "",
-      city: getFormValue(formData, "senderCity") || "",
-      postCode: getFormValue(formData, "senderPostcode") || "",
-      country: getFormValue(formData, "senderCountry") || "",
-    };
+    // // Build addresses safely
+    // const clientaddress: Address = {
+    //   street: getFormValue(formData, "recieverAddress") || "",
+    //   city: getFormValue(formData, "recieverCity") || "",
+    //   postCode: getFormValue(formData, "recieverPostcode") || "",
+    //   country: getFormValue(formData, "recieverCountry") || "",
+    // };
 
-    // Handle items array - check both naming conventions
-    let names = formData.getAll("name[]");
-    let quantities = formData.getAll("quantity[]");
-    let prices = formData.getAll("price[]");
-    let totals = formData.getAll("total[]");
+    // const senderaddress: Address = {
+    //   street: getFormValue(formData, "senderAddress") || "",
+    //   city: getFormValue(formData, "senderCity") || "",
+    //   postCode: getFormValue(formData, "senderPostcode") || "",
+    //   country: getFormValue(formData, "senderCountry") || "",
+    // };
 
-    // Fallback to single field names if array notation not found
-    if (names.length === 0) {
-      const singleName = formData.get("name");
-      const singleQty = formData.get("quantity");
-      const singlePrice = formData.get("price");
-      const singleTotal = formData.get("total");
+    // // Handle items array - check both naming conventions
+    // let names = formData.getAll("name[]");
+    // let quantities = formData.getAll("quantity[]");
+    // let prices = formData.getAll("price[]");
+    // let totals = formData.getAll("total[]");
 
-      if (singleName) {
-        names = [singleName];
-        quantities = singleQty ? [singleQty] : ["1"];
-        prices = singlePrice ? [singlePrice] : ["0"];
-        totals = singleTotal ? [singleTotal] : ["0"];
-      }
-    }
+    // // Fallback to single field names if array notation not found
+    // if (names.length === 0) {
+    //   const singleName = formData.get("name");
+    //   const singleQty = formData.get("quantity");
+    //   const singlePrice = formData.get("price");
+    //   const singleTotal = formData.get("total");
 
-    const items = names
-      .map((_, i) => ({
-        name: String(names[i] || ""),
-        quantity: Number(quantities[i] || 1),
-        price: Number(prices[i] || 0),
-        total: Number(totals[i] || 0),
-      }))
-      .filter((item) => item.name.trim() !== ""); // Remove empty items
+    //   if (singleName) {
+    //     names = [singleName];
+    //     quantities = singleQty ? [singleQty] : ["1"];
+    //     prices = singlePrice ? [singlePrice] : ["0"];
+    //     totals = singleTotal ? [singleTotal] : ["0"];
+    //   }
+    // }
 
-    // Validate at least one item exists
-    if (items.length === 0) {
-      throw new Error("At least one item is required");
-    }
+    // const items = names
+    //   .map((_, i) => ({
+    //     name: String(names[i] || ""),
+    //     quantity: Number(quantities[i] || 1),
+    //     price: Number(prices[i] || 0),
+    //     total: Number(totals[i] || 0),
+    //   }))
+    //   .filter((item) => item.name.trim() !== ""); // Remove empty items
 
-    const invoiceObj: Partial<InvoiceType> = {
-      id,
-      paymentdue,
-      description,
-      paymentterms,
-      clientname,
-      clientemail,
-      status, // Use the passed status parameter
-      total,
-      senderaddress,
-      clientaddress,
-      items,
-      user_id,
-    };
+    // // Validate at least one item exists
+    // if (items.length === 0) {
+    //   throw new Error("At least one item is required");
+    // }
+
+    // const invoiceObj: Partial<InvoiceType> = {
+    //   id,
+    //   paymentdue,
+    //   description,
+    //   paymentterms,
+    //   clientname,
+    //   clientemail,
+    //   status, // Use the passed status parameter
+    //   total,
+    //   senderaddress,
+    //   clientaddress,
+    //   items,
+    //   user_id,
+    // };
 
     console.log("Attempting to save invoice:", invoiceObj);
 

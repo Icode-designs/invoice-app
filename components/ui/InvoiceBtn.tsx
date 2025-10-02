@@ -32,6 +32,7 @@ const InvoiceBtn = ({
   }
 
   const { toggleForm } = formCtx;
+  const { addPaidStatus } = invoicesCtx;
 
   const onPaid = async () => {
     setSelectedInvoice((prev) => {
@@ -39,7 +40,7 @@ const InvoiceBtn = ({
       return { ...prev, status: "paid" };
     });
 
-    await handlePaidStatus(id);
+    await addPaidStatus(id);
   };
   return (
     <StyledInvoiceBtn>

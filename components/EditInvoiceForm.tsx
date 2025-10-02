@@ -4,7 +4,7 @@ import {
   StyledForm,
   StyledFormContainer,
 } from "@/styles/components/NewInvoiceForm.styles";
-import { FlexBox } from "@/styles/components/UI.styles";
+import { FlexBox, StyledTextInput } from "@/styles/components/UI.styles";
 import { FaAngleLeft } from "react-icons/fa";
 import TextInput from "./ui/TextInput";
 import { MdDelete } from "react-icons/md";
@@ -29,46 +29,58 @@ const EditInvoiceForm = ({
   selectedInvoice,
   setSelectedInvoice,
 }: EditInvoiceType) => {
-  const [items, setItems] = useState(selectedInvoice.items);
+  const [formData, setFormData] = useState(selectedInvoice);
+
   const isLargeScreen = useMediaQuery(768);
   const Wrapper = isLargeScreen ? "h2" : "h3";
   const formCtx = useContext(FormContext);
-  const invoicesCtx = useContext(InvoicesContext);
 
   // Sync selectedInvoice to latest local state from context
-  useEffect(() => {
-    if (invoicesCtx) {
-      const latestInvoice = invoicesCtx.getInvoice(
-        selectedInvoice.id as string
-      );
-      if (latestInvoice) {
-        setItems(latestInvoice.items);
-      }
-    }
-  }, [invoicesCtx, selectedInvoice.id]);
 
   if (!formCtx) {
     return;
   }
 
   const { toggleForm } = formCtx;
-  const createDate = new Date(selectedInvoice.createdate as string)
-    .toISOString()
-    .split("T")[0];
+
+  function removeItem(i: number) {
+    if (formData.items.length > 1) {
+      const items = formData.items.filter((_, index) => index !== i);
+      setFormData((prev) => ({ ...prev, items }));
+    }
+  }
 
   function addItem() {
-    setItems((prevItems) => [
-      ...prevItems,
-      { name: "", quantity: null, price: null, total: null },
-    ]);
+    setFormData((prev) => ({
+      ...prev,
+      items: [...prev.items, { name: "", quantity: "", total: "", price: "" }],
+    }));
   }
 
-  function removeItem(indexToRemove: number) {
-    if (indexToRemove === 0) {
-      return;
-    }
-    setItems(items.filter((_, index) => index !== indexToRemove));
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number,
+    field: "quantity" | "price" | "name"
+  ) {
+    const rawValue = event.target.value;
+    const value =
+      field === "name" ? rawValue : rawValue === "" ? "" : parseFloat(rawValue);
+
+    setFormData((prev) => {
+      const updatedItems = [...prev.items];
+      const currentItem = { ...updatedItems[index], [field]: value };
+
+      if (field === "quantity" || field === "price") {
+        const qty = Number(currentItem.quantity) || 0;
+        const price = Number(currentItem.price) || 0;
+        currentItem.total = qty * price;
+      }
+
+      updatedItems[index] = currentItem;
+      return { ...prev, items: updatedItems };
+    });
   }
+
   return (
     <StyledFormContainer $isOpen={isOpen}>
       <StyledForm>
@@ -91,7 +103,7 @@ const EditInvoiceForm = ({
               label="Street Address"
               name="senderAddress"
               type="text"
-              value={selectedInvoice.senderaddress.street}
+              value={formData.senderaddress.street}
             />
             <FlexBox $variant="secondary">
               <FlexBox>
@@ -99,29 +111,25 @@ const EditInvoiceForm = ({
                   label="City"
                   name="senderCity"
                   type="text"
-                  value={selectedInvoice.senderaddress.city}
+                  value={formData.senderaddress.city}
                 />
                 <TextInput
                   label="Post Code"
                   name="senderPostcode"
                   type="number"
-                  value={selectedInvoice.senderaddress.postCode}
+                  value={formData.senderaddress.postCode}
                 />
               </FlexBox>
               <TextInput
                 label="country"
                 name="senderCountry"
                 type="text"
-                value={selectedInvoice.senderaddress.country}
+                value={formData.senderaddress.country}
               />
             </FlexBox>
           </InputContainer>
         </fieldset>
-        <input
-          type="hidden"
-          name="status"
-          value={selectedInvoice.status || ""}
-        />
+        <input type="hidden" name="status" value={formData.status || ""} />
 
         <fieldset>
           <h3>bill to</h3>
@@ -130,7 +138,7 @@ const EditInvoiceForm = ({
               label="client's name"
               name="clientname"
               type="text"
-              value={selectedInvoice.clientname}
+              value={formData.clientname}
               required
             />
             <TextInput
@@ -138,14 +146,14 @@ const EditInvoiceForm = ({
               name="clientemail"
               type="email"
               required
-              value={selectedInvoice.clientemail}
+              value={formData.clientemail}
             />
             <TextInput
               label="street address"
               name="recieverAddress"
               type="text"
               required
-              value={selectedInvoice.clientaddress.street}
+              value={formData.clientaddress.street}
             />
 
             <FlexBox $variant="secondary">
@@ -155,14 +163,14 @@ const EditInvoiceForm = ({
                   name="recieverCity"
                   type="text"
                   required
-                  value={selectedInvoice.clientaddress.city}
+                  value={formData.clientaddress.city}
                 />
                 <TextInput
                   label="Post Code"
                   name="recieverPostcode"
                   type="number"
                   required
-                  value={selectedInvoice.clientaddress.postCode}
+                  value={formData.clientaddress.postCode}
                 />
               </FlexBox>
               <TextInput
@@ -170,37 +178,41 @@ const EditInvoiceForm = ({
                 name="recieverCountry"
                 type="text"
                 required
-                value={selectedInvoice.clientaddress.country}
+                value={formData.clientaddress.country}
               />
             </FlexBox>
 
-            <TextInput
-              type="date"
-              label="invoice date"
-              name="createdate"
-              value={createDate}
-              readOnly
-            />
-            <TextInput
-              type="date"
-              label="due date"
-              name="paymentdue"
-              required
-              value={selectedInvoice.paymentdue}
-            />
-            <TextInput
-              type="text"
-              label="payment terms"
-              name="paymentterms"
-              required
-              value={selectedInvoice.paymentterms}
-            />
+            <FlexBox $variant="secondary">
+              <FlexBox>
+                <TextInput
+                  type="date"
+                  label="invoice date"
+                  name="createdate"
+                  value={formData.createdate}
+                  readOnly
+                />
+                <TextInput
+                  type="date"
+                  label="due date"
+                  name="paymentdue"
+                  required
+                  value={formData.paymentdue}
+                />
+              </FlexBox>
+              <TextInput
+                type="number"
+                label="payment terms"
+                name="paymentterms"
+                required
+                value={formData.paymentterms}
+              />
+            </FlexBox>
             <TextInput
               type="text"
               label="project/decription"
               name="description"
               required
-              value={selectedInvoice.description}
+              value={formData.description}
             />
           </InputContainer>
         </fieldset>
@@ -208,44 +220,71 @@ const EditInvoiceForm = ({
         <fieldset className="itemList">
           <h2>Item List</h2>
           <InputContainer>
-            {items.map((item, index) => (
-              <FlexBox key={index} $variant="secondary" id="itemInput">
-                <TextInput
-                  name="itemname[]"
-                  label="item name"
-                  type="text"
-                  required
-                  value={item.name}
-                />
-                <FlexBox>
-                  <TextInput
-                    name="quantity[]"
-                    label="QTY"
-                    type="number"
+            {formData.items.map((item, i) => (
+              <FlexBox key={i} $variant="secondary" id="itemInput">
+                <StyledTextInput>
+                  <label htmlFor="name">
+                    <p>Item Name</p>
+                  </label>
+                  <input
+                    type="text"
+                    name="itemname[]"
                     step={1}
+                    value={item.name}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      handleChange(event, i, "name")
+                    }
                     required
-                    value={item.quantity}
                   />
-                  <TextInput
-                    name="price[]"
-                    label="price"
-                    type="number"
-                    step={0.01}
-                    required
-                    value={item.price}
-                  />
+                </StyledTextInput>
+
+                <FlexBox>
+                  <StyledTextInput>
+                    <label htmlFor="quantity">
+                      <p>QTY</p>
+                    </label>
+                    <input
+                      type="number"
+                      name="quantity[]"
+                      step={1}
+                      value={item.quantity as string}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(event, i, "quantity")
+                      }
+                      required
+                    />
+                  </StyledTextInput>
+
+                  <StyledTextInput>
+                    <label htmlFor="price">
+                      <p>Price</p>
+                    </label>
+                    <input
+                      type="number"
+                      name="price[]"
+                      required
+                      step={0.01}
+                      value={item.price as string}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(event, i, "price")
+                      }
+                    />
+                  </StyledTextInput>
+
                   <TextInput
                     name="total[]"
                     label="total"
                     type="number"
-                    step={0.01}
-                    required
                     value={item.total}
+                    step={0.01}
+                    readOnly
                   />
                   <button
                     type="button"
-                    onClick={() => removeItem(index)}
+                    onClick={() => removeItem(i)}
                     className="deleteBtn"
+                    aria-label="Delete item"
+                    disabled={formData.items.length === 1}
                   >
                     <MdDelete size={32} color="var(--col-600)" />
                   </button>
@@ -260,7 +299,7 @@ const EditInvoiceForm = ({
         </fieldset>
 
         <EditFormControl
-          invoiceId={selectedInvoice.id}
+          invoiceId={formData.id}
           setSelectedInvoice={setSelectedInvoice}
         />
       </StyledForm>

@@ -1,48 +1,27 @@
+"use server";
 import { Address, InvoiceType, Item } from "@/types/api/invoiceType";
 import { getDateValue, getFormValue, getNumberValue } from "./validation";
-
-const DEFAULT_VALUES = {
-  DESCRIPTION: "",
-  PAYMENT_TERMS: 0,
-  ITEM_QUANTITY: "1",
-  ITEM_PRICE: "0",
-  ITEM_TOTAL: "0",
-};
-const FORM_FIELDS = {
-  CREATEDATE: "createdate",
-  PAYMENTDUE: "paymentdue",
-  DESCRIPTION: "description",
-  PAYMENTTERMS: "paymentterms",
-  CLIENTNAME: "clientname",
-  CLIENTEMAIL: "clientemail",
-  RECIEVER_ADDRESS: "recieverAddress",
-  RECIEVER_CITY: "recieverCity",
-  RECIEVER_POSTCODE: "recieverPostcode",
-  RECIEVER_COUNTRY: "recieverCountry",
-  SENDER_ADDRESS: "senderAddress",
-  SENDER_CITY: "senderCity",
-  SENDER_POSTCODE: "senderPostcode",
-  SENDER_COUNTRY: "senderCountry",
-  ITEM_NAME: "itemname[]",
-  QUANTITY: "quantity[]",
-  PRICE: "price[]",
-  TOTAL: "total[]",
-  SINGLE_ITEM_NAME: "itemname",
-  SINGLE_QUANTITY: "quantity",
-  SINGLE_PRICE: "price",
-  SINGLE_TOTAL: "total",
-};
-
-export const STATUS = {
-  PAID: "paid",
-  DRAFT: "draft",
-  PENDING: "pending",
-};
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import { FORM_FIELDS, DEFAULT_VALUES, STATUS } from "../constants";
 
 export async function parseInvoiceForm(
   formData: FormData,
   invoiceID: string
 ): Promise<InvoiceType> {
+  const supabase = createServerComponentClient({
+    cookies,
+  });
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error("Auth error:", userError);
+    throw new Error("Not authenticated — cannot save invoice");
+  }
   const id = invoiceID;
 
   let createdate = getDateValue(formData, FORM_FIELDS.CREATEDATE);
@@ -51,6 +30,10 @@ export async function parseInvoiceForm(
   }
 
   const status = getFormValue(formData, "status");
+  if (!status) {
+    throw new Error("Status is required");
+  }
+
   const paymentdue = getDateValue(formData, FORM_FIELDS.PAYMENTDUE);
   const description =
     getFormValue(formData, FORM_FIELDS.DESCRIPTION) ||
@@ -144,5 +127,6 @@ export async function parseInvoiceForm(
         : status === STATUS.PENDING
         ? STATUS.PENDING
         : STATUS.DRAFT,
+    user_id: user.id,
   };
 }

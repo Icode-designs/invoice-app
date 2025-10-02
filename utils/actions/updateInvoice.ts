@@ -3,7 +3,7 @@
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { InvoiceType } from "@/types/api/invoiceType";
-import { STATUS } from "../helpers/parseInvoice";
+import { STATUS } from "../constants";
 
 //  Main function to update an invoice in SupaBase
 export async function updateInvoice(
